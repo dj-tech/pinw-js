@@ -503,8 +503,13 @@ function button_expand_exons(r, x_scale){
 	});
 }
 
+/* REGIONS_SCALED
+ * r -> regioni
+ * 
+ * Modifica le regioni in base alla loro dimensione (end - start). Aumenta
+ * quelle minori di 50 e diminuisce quelle maggiori di 1500
+ */
 function regions_scaled(r){
-	
 	
 	for(i = 0; i < r.length - 1; i++){
 		size_regions = r[i].end - r[i].start;
@@ -520,9 +525,7 @@ function regions_scaled(r){
 			r[i].end = r[i].end - size_regions_scaled;
 			r[i + 1].start = r[i].end;
 			console.log(r[i].id);
-		}
-		
-		
+		}	
 	}
 			
 	return r;
