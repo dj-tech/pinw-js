@@ -17,10 +17,8 @@ width = window.innerWidth - margin_isoform.left - margin_isoform.right;
 function exons_structure(extract_exons, extract_regions, extract_boundary){
 	
 	l = extract_exons.length;
-	var colors_exons = d3.scale.category20();
 	
 	var exons = [];
-	
 	
 	for(i = 0; i < l; i++){
 		
@@ -32,6 +30,7 @@ function exons_structure(extract_exons, extract_regions, extract_boundary){
 		
 		var seq = "";
 		var flag_seq = false;
+		var flag_alt = false;
 		
 		//regione boundary di sinistra
 		region_left = extract_regions[extract_boundary[l_b].first + 1];
@@ -62,10 +61,14 @@ function exons_structure(extract_exons, extract_regions, extract_boundary){
 					}
 			
 				reg[k] = extract_regions[j].id;
+				if(extract_regions[j].alternative == true)
+					flag_alt = true;
 			}
 			
 			if(flag_seq == true)
 				seq = null;
+				
+			
 			
 			//costruisce l'oggetto esone
 			exons.push({
@@ -74,7 +77,7 @@ function exons_structure(extract_exons, extract_regions, extract_boundary){
 					"end" : end_exon,
 					"sequence" : seq,
 					"regions" : reg,
-					"color" : colors_exons(i)
+					"alternative" : flag_alt
 			});
 			reg = [];
 		
@@ -99,7 +102,6 @@ function introns_structure(extract_introns, extract_regions, extract_boundary){
 	l = extract_introns.length;
 	var introns = [];
 	var reg = [];
-	var colors_introns = d3.scale.category10();
 
 	
 	for(i = 0; i < l; i++){
@@ -183,8 +185,7 @@ function introns_structure(extract_introns, extract_regions, extract_boundary){
 					"end" : end_intron,
 					"sequence" : seq,
 					"pattern" : pattern,
-					"regions" : reg,
-					"color" : colors_introns(i)
+					"regions" : reg
 			});
 			reg = [];
 			
@@ -284,6 +285,8 @@ function set_svg(c, w, h){
  * Disegna la struttura degli esoni. 
  */
 function draw_exons(box, exons, x_scale){
+	
+	console.log(exons);
 	  	
 	var tip_info = d3.tip()
   			.attr('class', 'd3-tip')
@@ -296,17 +299,22 @@ function draw_exons(box, exons, x_scale){
 	
 	rect_exons = box.append("g")
 		.attr("id", "exons")
+		.attr("render-order", 0)
 		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top + ")");
 	//aggiunge i blocchi
 	rect_exons.selectAll("rect")
 		.data(exons)
 		.enter()
 		.append("rect")
+		.attr("class", function(d) {if(d.alternative == false)
+										return "tex";
+									else
+										return "no_tex"; })
 		.attr("width", function(d) { return x_scale(d.end) - x_scale(d.start) - 1; })
 		.attr("height", "75")
-		.style("fill",	function(d) { return d.color; })										 
 		.style("stroke", "black")
-		.style("opacity", 0.4)
+		.style("fill", function() { return d3.rgb("#228B22"); })
+		.style("opacity", 1.0)
 		.attr("transform",tf)
 		.call(tip_info)
 		/*.on("click", function(d){ coord = d3.mouse(this);
@@ -317,16 +325,8 @@ function draw_exons(box, exons, x_scale){
 									  .append(tipBlocks.show); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default')
 									 .call(tipBlocks.hide); });
+	
 			
-				
-	//r.selectAll("text")
-	//		.data(exons)
-		//	.enter().append("text")
-			//.style("fill", "white")
-			//.text(function(d) { return d.id; })
-			//.style("text-anchor", "right")
-			//.attr("transform", function(d) { 
-				//return "translate(" + (x(d.start)) + ",20)"; });
 	return rect_exons;
 	
 }
@@ -343,6 +343,7 @@ function draw_introns(box, introns, x_scale){
 	
 	line_introns = box.append("g")
 		.attr("id", "introns")
+		.attr("render-order", -1)
 		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top + ")");
 		
 	line_introns.selectAll("line")
@@ -352,9 +353,9 @@ function draw_introns(box, introns, x_scale){
 		.attr("y1", 35)
 		.attr("x2", function(d) { return x(d.end); })
 		.attr("y2", 35)
-		.style("stroke", function(d) { return d.color; })
+		.style("stroke", "black")
 		.style("stroke-width", 6);
-	
+			
 	return line_introns;
 }
 
@@ -399,6 +400,7 @@ function draw_splice_sites(box, s_s, x_scale){
 	//aggiunge le splice site
 	splice_sites = box.append("g")
 		.attr("id", "splice_sites")
+		.attr("render-order", 1)
 		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top + ")");
 		
 	splice_sites.selectAll("line")
@@ -430,10 +432,10 @@ function draw_splice_sites(box, s_s, x_scale){
 		.attr("fill", "red")
 		.attr("stroke","#000")
 		.attr("stroke-width",1)
-		.attr("transform", function (d) {if(d.type == 3)
+		.attr("transform", function (d) {if((d.type == 3) | (d.type == "term"))
 											return "translate(" + (x_scale(d.position) - 3) + ",-30)" + "rotate(-90)";
 										 else
-										 	if(d.type != "unknow")
+										 	if((d.type != "unknow") | (d.type == "init"))
 												return "translate(" + (x_scale(d.position) + 3) + ",-30)" + "rotate(90)"; });
 	
 	//viene clonato triangle_up										 
@@ -544,6 +546,55 @@ tipBlocks = d3.tip()
    							"<br><strong>Regions:</strong> <span style='color:yellow'>" + 
    							d.regions + "</span>";
   				});
+  				
+function pattern_exons(){
+	
+	defs = d3.select("body").append("svg")
+		.append('defs');
+	pat_tex = defs.append('pattern')
+    	.attr('id', 'pattern_stripe')
+    	.attr('patternUnits', 'userSpaceOnUse')
+    	.attr('patternTransform', 'rotate(45)')
+    	.attr('width', 4)
+    	.attr('height', 4)
+  		//grandezza stripes
+  		.append('rect')
+    	.attr('width', 3)
+    	.attr('height', 6)
+    	.attr('transform', 'translate(0,0)')
+    	.style('fill', 'green')
+    	.style('opacity', 1.0);
+    defs.append('mask')
+    	.attr('id', 'mask_stripe')
+    	.append('rect')
+    	.attr('x', 0)
+    	.attr('y', 0)
+    	.attr('width', '130%')
+    	.attr('height', '130%')
+    	.style('fill', 'url(#pattern_stripe)');
+    	
+    	
+   	pat_no_tex = defs.append('pattern')
+    	.attr('id', 'pattern_no_stripe')
+    	.attr('patternUnits', 'userSpaceOnUse')
+    	.attr('patternTransform', 'rotate(45)')
+    	.attr('width', 10)
+    	.attr('height', 10)
+  		.append('rect')
+    	.attr('width', '100%')
+    	.attr('height', '100%')
+    	.attr('transform', 'translate(0,0)')
+    	.style('fill', 'green')
+    	.style('opacity', 1.0);
+    defs.append('mask')
+    	.attr('id', 'mask_no_stripe')
+    	.append('rect')
+    	.attr('x', 0)
+    	.attr('y', 0)
+    	.attr('width', '130%')
+    	.attr('height', '130%')
+    	.style('fill', 'url(#pattern_no_stripe)');
+}
 
 //carica i dati contenuti nel file json e richiama le funzioni per disegnare la struttura
 //dell'isoforma
@@ -575,17 +626,17 @@ d3.json("ATP6AP1example2.json", function(error, atp) {
 	//console.log(introns_restruct);
 	//console.log(s_s_restruct);
 	
-  	
-  	
-	
 	svg_box = set_svg("isoform", width + margin_isoform.right + margin_isoform.left, (height - 100) + margin_isoform.top + margin_isoform.bottom);
 	svg_box.call(tipBlocks);
 	
-	rect = draw_exons(svg_box, exons_restruct, x);
-	s_s = draw_splice_sites(svg_box, s_s_restruct, x);
+	pattern_exons();
+	
 	line_i = draw_introns(svg_box, introns_restruct, x);
 	
-	//a = draw_a_ref(svg_box, introns_restruct, x);
+	s_s = draw_splice_sites(svg_box, s_s_restruct, x);
+	
+	rect = draw_exons(svg_box, exons_restruct, x);
+	
 	
 	//button_expand(rect, line_i, s_s, triangle_down, x);
 	
@@ -593,6 +644,8 @@ d3.json("ATP6AP1example2.json", function(error, atp) {
 	//console.log(exons_restruct);
 	//console.log(introns_restruct);
 	//console.log(s_s_restruct);
+	
+    
 });
 
 	
