@@ -1,6 +1,6 @@
 
 //margini
-var margin_isoform = {top: 100, right: 15, bottom: 15, left: 15};
+var margin_isoform = {top: 100, right: 15, bottom: 15, left: 10};
 //dimensione della finestra di visualizzazione dell'isoforma
 var height = window.innerHeight + 100 - margin_isoform.top - margin_isoform.bottom,
 width = window.innerWidth - margin_isoform.left - margin_isoform.right;
@@ -272,9 +272,6 @@ function set_svg(c, w, h){
 	
 	return svg;
 }
-
-
-
       
 /* DRAW_EXONS
  * box -> variabile che contiente l'elemento "svg"
@@ -312,15 +309,43 @@ function draw_exons(box, exons, x_scale){
 										return "no_tex"; })
 		.attr("width", function(d) { return x_scale(d.end) - x_scale(d.start) - 1; })
 		.attr("height", "75")
-		.style("stroke", "black")
+		//.style("stroke", "black")
 		.style("fill", function() { return d3.rgb("#228B22"); })
 		.style("opacity", 1.0)
 		.attr("transform",tf)
 		.call(tip_info)
-		/*.on("click", function(d){ coord = d3.mouse(this);
+		.on("click", function(d){ d3.selectAll("rect")
+									.style("fill", function() { return d3.rgb("#228B22").darker(2); })
+									.attr("pointer-events", "none");
+									
+								  d3.select(this)
+									.style("fill", function() { return d3.rgb("#228B22").brighter(2); })
+									.style("stroke", function() { return d3.rgb("#800080").brighter(2); })
+									.style("stroke-width", 3);
+								  coord = d3.mouse(this);
 								  console.log(coord);
-								  if((coord[0] > x_scale(d.start)) | (coord[0] < x_scale(d.end)))
-								  		console.log(d.id); })*/
+								  if((coord[0] > x_scale(d.start)) | (coord[0] < x_scale(d.end))){
+								  		console.log(d.id); 
+								  		console.log(x_scale(d.start));
+								  		console.log(x_scale(d.end));
+								  	}
+								  		
+								  svg_info = set_svg("expande_info", 500, 400);
+								  svg_info.attr("viewbox", "0 0 500 400")
+								  		.style("border", "1px solid #cccccc");
+								  svg_info.append("image")
+        								.attr("xlink:href", "img/close_icon.png")
+        								.attr("x", "480")
+        								.attr("y", "0")
+        								.attr("width", "20")
+        								.attr("height", "20")
+        								.on("click", function(s){ d3.select("#expande_info").remove(); 
+        														  d3.selectAll("rect")
+        														  	.attr("pointer-events", "yes")
+        														  	.style("stroke-width", 0)
+        														 	.style("fill", function() { return d3.rgb("#228B22"); }); });
+        				})
+								  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
 									  .append(tipBlocks.show); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default')
@@ -515,18 +540,16 @@ function regions_scaled(r){
 	
 	for(i = 0; i < r.length - 1; i++){
 		size_regions = r[i].end - r[i].start;
-		console.log(size_regions);
+		
 		if(size_regions < 50){
 			size_regions_scaled = size_regions * (80 / size_regions);
 			r[i].end = r[i].end + size_regions_scaled;
 			r[i + 1].start = r[i].end;
-			console.log(r[i].id);
 		}
 		if(size_regions > 1500){
 			size_regions_scaled = size_regions * (800 / size_regions);
 			r[i].end = r[i].end - size_regions_scaled;
 			r[i + 1].start = r[i].end;
-			console.log(r[i].id);
 		}	
 	}
 			
@@ -626,8 +649,10 @@ d3.json("ATP6AP1example2.json", function(error, atp) {
 	//console.log(introns_restruct);
 	//console.log(s_s_restruct);
 	
-	svg_box = set_svg("isoform", width + margin_isoform.right + margin_isoform.left, (height - 100) + margin_isoform.top + margin_isoform.bottom);
-	svg_box.call(tipBlocks);
+	svg_box = set_svg("isoform", width - margin_isoform.right + margin_isoform.left, (height / 4) + margin_isoform.top - margin_isoform.bottom);
+	svg_box.style("border", "1px solid #cccccc")
+		.attr("position", "center")
+		.call(tipBlocks);
 	
 	pattern_exons();
 	
