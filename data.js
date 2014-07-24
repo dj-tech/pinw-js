@@ -211,7 +211,7 @@ function splice_site_structure(extract_boundaries, extract_regions){
 	for(i = 0; i < l; i++){
 		
 		if(extract_boundaries[i].first == -1){
-			p = null;
+			pos_b = null;
 			t = "unknow";
 		}
 			
@@ -219,14 +219,14 @@ function splice_site_structure(extract_boundaries, extract_regions){
 			t = extract_boundaries[i].type;
 			
 			if((t == "5") | (t == "both"))
-				p = extract_regions[extract_boundaries[i].first + 1].start;
+				pos_b = extract_regions[extract_boundaries[i].first + 1].start;
 			if((t == "3") | (t == "term"))
-				p = extract_regions[extract_boundaries[i].first].end;
+				pos_b = extract_regions[extract_boundaries[i].first].end;
 			if(t == "init")
-				p = extract_regions[extract_boundaries[i].first].start;
+				pos_b = extract_regions[extract_boundaries[i].first].start;
 				
 			s_s.push({
-				"position" : p,
+				"position" : pos_b,
 				"type" : t			
 			});
 		}
@@ -260,19 +260,80 @@ function isoform_range(reg) {
  * Crea un elemento "svg" dove appendere le gli elementi che 
  * descrivono la struttura dell'isoforma
  */
-function set_svg(c, w, h){
+function set_svg(c, w, h, p){
 	
 	
 	
 	svg = d3.select("body").append("svg")
 		.attr("id", c)
 		.attr("width", w)
-		.attr("height", h);
-	
+		.attr("height", h)
+		.style("position", p[0])
+		.style("left", p[1])
+		.style("right", p[2])
+		.style("top", p[3]);	
 	
 	return svg;
 }
-      
+
+function set_svg_position(start, w){
+    
+    console.log(start);
+    p_s = ["absolute", "20px", "10px", "400px", "10px"];    
+    pos_svg = "";
+    if(start < margin_isoform.left)
+        p_s[1] = pos_svg.concat((start + 20) + "px");   
+    else{
+        if((start + w) > width)
+            p_s[1] = pos_svg.concat((start - w) + "px");
+        else
+            p_s[1] = pos_svg.concat(start + "px");
+    }
+    
+    return p_s;
+     
+}
+
+function display_info(s_i){
+    
+    s_i.attr("viewbox", "0 0 500 400")
+        .style("border", "1px solid #cccccc");
+    s_i.append("image")
+        .attr("xlink:href", "img/close_icon.png")
+        .attr("x", "480")
+        .attr("y", "0")
+        .attr("width", "20")
+        .attr("height", "20")
+        .on("click", function(){ d3.select("#expande_info").remove(); 
+                                 d3.selectAll("#exon")
+                                   .attr("pointer-events", "yes")
+                                   .style("stroke-width", 0)
+                                   .style("fill", function() { return d3.rgb("#228B22"); }); });
+}
+     
+function display_info_stripe(s_i){
+    
+    s_i.attr("viewbox", "0 0 500 400")
+        .style("border", "1px solid #cccccc");
+    s_i.append("image")
+        .attr("xlink:href", "img/close_icon.png")
+        .attr("x", "480")
+        .attr("y", "0")
+        .attr("width", "20")
+        .attr("height", "20")
+        .on("click", function(){ d3.select("#expande_info").remove(); 
+                                 d3.selectAll("#exon_stripe")
+                                   .attr("pointer-events", "yes")
+                                   .style("stroke-width", 0)
+                                   .style("fill", 'url(#diagonalHatch)');
+                                 d3.selectAll("#exon")
+                                   .attr("pointer-events", "yes")
+                                   .style("stroke-width", 0)
+                                   .style("fill", function() { return d3.rgb("#228B22"); });
+                                
+                               });
+    
+}
 /* DRAW_EXONS
  * box -> variabile che contiente l'elemento "svg"
  * exons -> struttura dati degli esoni
@@ -332,21 +393,13 @@ function draw_exons(box, exons, x_scale){
 								  		console.log(x_scale(d.start));
 								  		console.log(x_scale(d.end));
 								  	}
-								  		
-								  svg_info = set_svg("expande_info", 500, 400);
-								  svg_info.attr("viewbox", "0 0 500 400")
-								  		.style("border", "1px solid #cccccc");
-								  svg_info.append("image")
-        								.attr("xlink:href", "img/close_icon.png")
-        								.attr("x", "480")
-        								.attr("y", "0")
-        								.attr("width", "20")
-        								.attr("height", "20")
-        								.on("click", function(){ d3.select("#expande_info").remove(); 
-        														  d3.selectAll("#exon")
-        														  	.attr("pointer-events", "yes")
-        														  	.style("stroke-width", 0)
-        														 	.style("fill", function() { return d3.rgb("#228B22"); }); });
+								  	
+								  s_w = 500;
+								  s_h = 400;
+								  p_s = set_svg_position(x_scale(d.start), s_w);
+								  	
+								  svg_info = set_svg("expande_info", s_w, s_h, p_s);
+								  display_info(svg_info);
         						}})
 								  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
@@ -388,26 +441,13 @@ function draw_exons(box, exons, x_scale){
                                         console.log(x_scale(d.end));
                                     }
                                         
-                                  svg_info = set_svg("expande_info", 500, 400);
-                                  svg_info.attr("viewbox", "0 0 500 400")
-                                        .style("border", "1px solid #cccccc");
-                                  svg_info.append("image")
-                                        .attr("xlink:href", "img/close_icon.png")
-                                        .attr("x", "480")
-                                        .attr("y", "0")
-                                        .attr("width", "20")
-                                        .attr("height", "20")
-                                        .on("click", function(){ d3.select("#expande_info").remove(); 
-                                                                  d3.selectAll("#exon_stripe")
-                                                                    .attr("pointer-events", "yes")
-                                                                    .style("stroke-width", 0)
-                                                                    .style("fill", 'url(#diagonalHatch)');
-                                                                 d3.selectAll("#exon")
-                                                                    .attr("pointer-events", "yes")
-                                                                    .style("stroke-width", 0)
-                                                                    .style("fill", function() { return d3.rgb("#228B22"); });
-                                
-                                                                }); 
+                                  s_w = 500;
+                                  s_h = 400;
+                                  p_s = set_svg_position(x_scale(d.start), s_w);
+                                    
+                                  svg_info = set_svg("expande_info", s_w, s_h, p_s);
+                                  display_info_stripe(svg_info);
+                                   
                                 })                           
         .on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
                                       .append(tipBlocks.show); })
@@ -647,6 +687,21 @@ function pattern_exons(){
         .attr('stroke-width', 1);
 }
 
+function display_gene(id){
+    
+    pos_title = ["absolute", "20px", "10px", "5px", "10px"];
+    
+    svg_title = set_svg("title", width - margin_isoform.right + margin_isoform.left, 50, pos_title);
+    svg_title.style("border", "1px solid #cccccc");
+    svg.append("text")
+       .attr("x", 10)
+       .attr("y", 30)
+       .attr("font-family", "Arial, Helvetica, sans-serif")
+       .attr("font-size", "30px")
+       .style("fill", "black")
+       .text(id);
+}
+
 //carica i dati contenuti nel file json e richiama le funzioni per disegnare la struttura
 //dell'isoforma
 d3.json("ATP6AP1example2.json", function(error, atp) {
@@ -677,7 +732,11 @@ d3.json("ATP6AP1example2.json", function(error, atp) {
 	//console.log(introns_restruct);
 	//console.log(s_s_restruct);
 	
-	svg_box = set_svg("isoform", width - margin_isoform.right + margin_isoform.left, (height / 4) + margin_isoform.top - margin_isoform.bottom);
+	display_gene("ATP6AP1 gene structure");
+	
+	pos_box = ["absolute", "20px", "10px", "70px", "10px"];
+	
+	svg_box = set_svg("isoform", width - margin_isoform.right + margin_isoform.left, 300, pos_box);
 	svg_box.style("border", "1px solid #cccccc")
 		.call(tipBlocks);
 	
@@ -692,7 +751,7 @@ d3.json("ATP6AP1example2.json", function(error, atp) {
 	
 	//button_expand(rect, line_i, s_s, triangle_down, x);
 	
-	button_expand_exons(rect, x);
+	//button_expand_exons(rect, x);
 	//console.log(exons_restruct);
 	//console.log(introns_restruct);
 	//console.log(s_s_restruct);
