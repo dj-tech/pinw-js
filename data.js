@@ -288,13 +288,34 @@ function set_svg(c, w, h, p){
  * della finestra di visualizzazione
  */
 function window_info_scale(reg, h_info){
+    
+    console.log(reg.length);
 
     var y = d3.scale.log()
               .rangeRound([0, h_info/2], .1);
                 
     //valorei minimo e massimo di inizio e fine dei blocchi
-    min = d3.min(reg, function(d) { return d.start; });
-    max = d3.max(reg, function(d) { return d.end; });
+    min_r = d3.min(reg[0], function(d) { return d.start; });
+    max_r = d3.max(reg[0], function(d) { return d.end; });
+    
+    if(reg.length > 1){
+        min_i = d3.min(reg[1], function(d) { return d.start; });
+        max_i = d3.max(reg[1], function(d) { return d.end; });
+    }
+    else{
+        min_i = min_r;
+        max_i = max_r;
+    }
+    
+    if(min_r <= min_i)
+        min = min_r;
+    else
+        min = min_i; 
+    
+    if(max_r >= max_i)
+        max = max_r;
+    else
+        max = max_i;
     
     y.domain([min, max], .1);
     
@@ -348,7 +369,9 @@ function svg_info_box(){
  */
 function display_info(s_i, domain, elements){
     
-   
+    for(i = 0; i < elements.length; i++)
+        console.log(domain(elements[i].start));
+    
     tipElement = d3.tip()
     .attr('class', 'd3-tip')
     .offset([10, 0])
@@ -476,6 +499,33 @@ function pattern_exons(){
         .attr('stroke-width', 1);
 }
 
+function check_structure_element(regions_info, c){
+    
+    //console.log(introns_restruct);
+    console.log(c);
+                          
+    r_info = [];
+    i_info = [];
+    c_info = [];
+    
+    for(rg = 0; rg < regions_info.length; rg++)
+        r_info.push(regions[regions_info[rg]]);
+    
+    for(i = 0; i < introns_restruct.length; i++)
+        if((c >= introns_restruct[i].start) & (c <= introns_restruct[i].end))
+            i_info.push(introns_restruct[i]);
+            
+    if(r_info.length != 0)
+        c_info.push(r_info);
+    if(i_info.length != 0)
+        c_info.push(i_info);
+    
+    console.log(c_info);
+    
+    return c_info;
+    
+}
+
 /* DRAW_EXONS
  * box -> variabile che contiente l'elemento "svg"
  * exons -> struttura dati degli esoni
@@ -526,19 +576,14 @@ function draw_exons(box, exons, x_scale){
 							.style("fill", function() { return d3.rgb("#228B22").brighter(2); })
 							.style("stroke", function() { return d3.rgb("#B8860B").brighter(2); })
 							.style("stroke-width", 3);
-						  coord = d3.mouse(this);
-						  console.log(coord);
-						  if((coord[0] > x_scale(d.start)) | (coord[0] < x_scale(d.end))){
-						      console.log(d.id); 
-							  console.log(d.regions);
 						  
-						  r_info = [];
-                          for(rg = 0; rg < d.regions.length; rg++)
-                          r_info.push(regions[d.regions[rg]]);
-                          console.log(r_info);  	
-						  x_info = window_info_scale(r_info, s_h);
-						  display_info(svg_info, x_info, r_info);}
-        			}})							  		
+						  coord_x = x_scale.invert(d3.event.pageX);
+						  
+						  if((coord_x > x_scale(d.start)) | (coord_x < x_scale(d.end))){
+						      info_structure = check_structure_element(d.regions, coord_x);  	
+						      x_info = window_info_scale(info_structure, s_h);
+						      display_info(svg_info, x_info, info_structure[0]);}
+        			      }})							  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
 									  .append(tipBlocks.show); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default')
@@ -576,21 +621,15 @@ function draw_exons(box, exons, x_scale){
                           .style("fill", function() { return d3.rgb("#228B22").brighter(2); })
                           .style("stroke", function() { return d3.rgb("#B8860B").brighter(2); })
                           .style("stroke-width", 3);
-                        coord = d3.mouse(this);
-                        console.log(coord);
-                        if((coord[0] > x_scale(d.start)) | (coord[0] < x_scale(d.end))){
-                            console.log(d.id); 
-                            console.log(x_scale(d.start));
-                            console.log(x_scale(d.end));
-                            
-                            r_info = [];
-                            for(rg = 0; rg < d.regions.length; rg++)
-                            r_info.push(regions[d.regions[rg]]);
-                            console.log(r_info);
-                
-                            x_info = window_info_scale(r_info, s_h);       
-                            display_info_stripe(svg_info, x_info, r_info);                     
-                     }})                           
+                        coord_x = x_scale.invert(d3.event.pageX);
+                          //console.log(coord);
+                        if((coord_x > x_scale(d.start)) | (coord_x < x_scale(d.end))){
+                              //console.log(d.id); 
+                              //console.log(d.regions);    
+                            info_structure = check_structure_element(d.regions, coord_x);  
+                              
+                            x_info = window_info_scale(info_structure, s_h);
+                            display_info_stripe(svg_info, x_info, info_structure[0]);}})                           
         .on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
                                       .append(tipBlocks.show); })
         .on("mouseout", function() { d3.select(this).style('cursor', 'default')

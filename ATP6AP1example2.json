@@ -6,6 +6,8 @@
 		
 		"file_format_version" : "blablabla",
 		
+		"gene" : "ATP6AP1",
+		
 		"regions" : [
 			
 			{
@@ -15,7 +17,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 0
 			},
 			
@@ -26,7 +28,7 @@
 				"type" : "codifying",
 				"alternative" : false,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 1
 			},
 			
@@ -37,7 +39,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 2
 			},
 			
@@ -48,7 +50,7 @@
 				"type" : "codifying",
 				"alternative" : false,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 3
 			},
 			
@@ -59,7 +61,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 4
 			},
 				
@@ -68,7 +70,7 @@
 				"end" : 545878,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "spliced",
-				"last?" : false,
+				"last" : false,
 				"id" : 5
 			},
 
@@ -79,7 +81,7 @@
 				"type" : "codifying",
 				"alternative" : false,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 6
 			},
 			
@@ -88,7 +90,7 @@
 				"end" : 546314,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "spliced",
-				"last?" : false,
+				"last" : false,
 				"id" : 7
 			},
 			
@@ -99,7 +101,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 8
 			},
 
@@ -110,7 +112,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 9
 			},
 			
@@ -119,7 +121,7 @@
 				"end" : 546979,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "spliced",
-				"last?" : false,
+				"last" : false,
 				"id" : 10
 			},
 		
@@ -130,7 +132,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 11
 			},
 			
@@ -139,7 +141,7 @@
 				"end" : 547683,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "spliced",
-				"last?" : false,
+				"last" : false,
 				"id" : 12
 			},
 		
@@ -150,7 +152,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 13
 			},
 
@@ -161,7 +163,7 @@
 				"type" : "codifying",
 				"alternative" : true,
 				"coverage" : 100,
-				"last?" : false,
+				"last" : false,
 				"id" : 14
 			},
 			
@@ -170,7 +172,7 @@
 				"end" : 548256,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "spliced",
-				"last?" : false,
+				"last" : false,
 				"id" : 15
 			},
 
@@ -179,9 +181,9 @@
 				"end" : 548495,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "codifying",
-				"alternative" : true,
+				"alternative" : false,
 				"coverage" : 100,
-				"last?" : true,
+				"last" : true,
 				"id" : 16
 			}
 		
