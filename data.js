@@ -453,8 +453,8 @@ function display_info(s_i, domain, elements, r, x){
                             d3.select(this).style('cursor', 'pointer');
                             element_selected_exon(r, x(d.start), x(d.end)); })
         .on("mouseout", function() { 
-                            d3.select(this).style('cursor', 'default')
-                            d3.select("#element_info_exon").remove(); })
+                            d3.select(this).style('cursor', 'default');
+                            d3.select("#element_info_exon").remove(); });
            
     
     if(introns_info != null){
@@ -469,11 +469,11 @@ function display_info(s_i, domain, elements, r, x){
 			.style("stroke", "black")
 			.style("stroke-width", 8)
             .on("mouseover", function(d) { 
-                                d3.select(this).style('cursor', 'pointer')
+                                d3.select(this).style('cursor', 'pointer');
                                 element_selected_intron(x(d.start), x(d.end)); })
             .on("mouseout", function() { 
-                                d3.select(this).style('cursor', 'default')
-                                d3.select("#element_info_intron").remove(); })
+                                d3.select(this).style('cursor', 'default');
+                                d3.select("#element_info_intron").remove(); });
 	}     
 }
 
@@ -531,8 +531,12 @@ function display_info_stripe(s_i, domain, elements, r, x){
         .style("fill", function() { return d3.rgb("#B8860B"); })
         .style("opacity", 0.7)
         .attr("transform", tf_info_ex)
-        .on("mouseover", function(d) { element_selected(r, x(d.start), x(d.end)); })
-        .on("mouseout", function() { d3.select("#element_info").remove(); })
+        .on("mouseover", function(d) { 
+        					d3.select(this).style('cursor', 'pointer');
+                            element_selected_exon(r, x(d.start), x(d.end)); })
+        .on("mouseout", function() { 
+        					d3.select(this).style('cursor', 'pointer');
+        					d3.select("#element_info_exon").remove(); });
         
     if(introns_info != null){
     	g.selectAll("line")
@@ -544,7 +548,13 @@ function display_info_stripe(s_i, domain, elements, r, x){
 			.attr("y2", 35)
 			.attr("transform", tf_info_in)
 			.style("stroke", "black")
-			.style("stroke-width", 8);   
+			.style("stroke-width", 8)
+			.on("mouseover", function(d) { 
+                                d3.select(this).style('cursor', 'pointer');
+                                element_selected_intron(x(d.start), x(d.end)); })
+            .on("mouseout", function() { 
+                                d3.select(this).style('cursor', 'default');
+                                d3.select("#element_info_intron").remove(); });   
 	}     
 }
 
