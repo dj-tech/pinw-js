@@ -366,7 +366,9 @@ function svg_info_box(){
                         
                         d3.selectAll("#intron")
                             .style("stroke", "black")
-                            .attr("pointer-events", "yes"); }); 
+                            .attr("pointer-events", "yes");
+                            
+                        d3.select("#sequence").remove(); }); 
     return s_i;
 }
 
@@ -392,7 +394,7 @@ function element_selected_intron(s, e){
 		.attr("x2", function(d) { return e; })
 		.attr("y2", 35)
 		.style("stroke", "black")
-		.style("stroke-width", 6)
+		.style("stroke-width", 6);
 }
 
 /* DISPLAY_INFO
@@ -451,10 +453,24 @@ function display_info(s_i, domain, elements, r, x){
         .attr("transform", tf_info_ex)
         .on("mouseover", function(d) { 
                             d3.select(this).style('cursor', 'pointer');
-                            element_selected_exon(r, x(d.start), x(d.end)); })
-        .on("mouseout", function() { 
+                            element_selected_exon(r, x(d.start), x(d.end));
+                            
+                            seq_id = "#sequence_" + d.id;
+                            s_id = d3.select(seq_id)
+                            	.transition()
+                            	.duration(300)
+                            	.attr("font-size", "20px")
+                            	.style("fill", "red")
+                            	.transition()
+                            	.duration(300)
+                            	.attr("font-size", "16px");
+                            	 })
+        .on("mouseout", function(d) { 
                             d3.select(this).style('cursor', 'default');
-                            d3.select("#element_info_exon").remove(); });
+                            d3.select("#element_info_exon").remove();
+                            
+                            seq_id = "#sequence_" + d.id;
+                            d3.select(seq_id).style("fill", "black"); });
            
     
     if(introns_info != null){
@@ -474,7 +490,7 @@ function display_info(s_i, domain, elements, r, x){
             .on("mouseout", function() { 
                                 d3.select(this).style('cursor', 'default');
                                 d3.select("#element_info_intron").remove(); });
-	}     
+	}   
 }
 
 /* DISPLAY_INFO_STRIPE
@@ -533,10 +549,23 @@ function display_info_stripe(s_i, domain, elements, r, x){
         .attr("transform", tf_info_ex)
         .on("mouseover", function(d) { 
         					d3.select(this).style('cursor', 'pointer');
-                            element_selected_exon(r, x(d.start), x(d.end)); })
-        .on("mouseout", function() { 
+                            element_selected_exon(r, x(d.start), x(d.end)); 
+                            
+                            seq_id = "#sequence_" + d.id;
+                            s_id = d3.select(seq_id)
+                            	.transition()
+                            	.duration(300)
+                            	.attr("font-size", "20px")
+                            	.style("fill", "red")
+                            	.transition()
+                            	.duration(300)
+                            	.attr("font-size", "16px"); })
+        .on("mouseout", function(d) { 
         					d3.select(this).style('cursor', 'pointer');
-        					d3.select("#element_info_exon").remove(); });
+        					d3.select("#element_info_exon").remove();
+        					
+        					seq_id = "#sequence_" + d.id;
+                            d3.select(seq_id).style("fill", "black"); });
         
     if(introns_info != null){
     	g.selectAll("line")
@@ -638,7 +667,6 @@ function check_structure_element(regions_info, c){
  */
 function draw_exons(box, exons, x_scale){
 	
-    console.log(exons);
 	var exons_stripe = [];
 	for(k = 0; k < exons.length; k++)
 	   if(exons[k].alternative == false)
@@ -677,13 +705,15 @@ function draw_exons(box, exons, x_scale){
 							.style("fill", function() { return d3.rgb("#228B22"); })
 							.style("stroke", function() { return d3.rgb("#B8860B"); })
 							.style("stroke-width", 3);
-						  
+		 
 						  var coord_x = x_scale.invert(d3.event.pageX);
 						  
 						  if((coord_x > x_scale(d.start)) | (coord_x < x_scale(d.end))){
 						      info_structure = check_structure_element(d.regions, coord_x);  	
 						      x_info = window_info_scale(info_structure, s_h);
-						      display_info(svg_info, x_info, info_structure, rect_exons, x_scale);}
+						      display_info(svg_info, x_info, info_structure, rect_exons, x_scale);
+						      sequence_box(box, info_structure);
+						  }
         			      }})							  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
 									  .append(tipBlocks.show); })
@@ -731,7 +761,8 @@ function draw_exons(box, exons, x_scale){
                             info_structure = check_structure_element(d.regions, coord_x);  
                               
                             x_info = window_info_scale(info_structure, s_h);
-                            display_info_stripe(svg_info, x_info, info_structure, rect_exons_stripe, x_scale);}})                           
+                            display_info_stripe(svg_info, x_info, info_structure, rect_exons_stripe, x_scale);
+                            sequence_box(box, info_structure); }})                           
         .on("mouseover", function() { d3.select(this).style('cursor', 'crosshair')
                                       .append(tipBlocks.show); })
         .on("mouseout", function() { d3.select(this).style('cursor', 'default')
@@ -881,6 +912,38 @@ function draw_splice_sites(box, s_s, x_scale){
 
 //--------------------------------------------------------------------------------------------------------------
 
+function sequence_box(isoform_box, seq_info){
+	
+	console.log(seq_info);
+	
+	var tf_seq = d3.svg.transform()
+		.translate(function (d, i) { return [(i * 12 * d.sequence.length),30]; });
+    
+	var sequence = isoform_box.append("g")
+		.attr("id", "sequence")
+		.attr("transform", "translate(" + margin_isoform.left + ", 180)");
+    
+    sequence.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 600)
+        .attr("height", 60)
+        .style("fill", "white")
+        .style("stroke", "blue")
+        .style("stroke-width", "1px");
+    
+    sequence.selectAll("text")
+    	.data(seq_info[0])
+    	.enter().append("text")
+    	.attr("id", function(d) { return "sequence_" + d.id; })
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("font-size", "16px")
+        .attr("transform", tf_seq)
+        .style("fill", "black")
+        .text(function(d) { return d.sequence.toUpperCase(); });
+        
+}
 
 /* REGIONS_SCALED
  * r -> regioni
@@ -1070,8 +1133,7 @@ function init(){
 	
 	   line_i = draw_introns(svg_box, introns_restruct, x);
 	   rect = draw_exons(svg_box, exons_restruct, x);
-	   s_s = draw_splice_sites(svg_box, s_s_restruct, x);
-	  	
+	   s_s = draw_splice_sites(svg_box, s_s_restruct, x);	  	
     });
 }
 
