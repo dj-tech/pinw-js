@@ -322,7 +322,7 @@ function set_svg(c, w, h, p){
 function window_info_scale(reg, h_info){
     
     //range per la finestra degli elementi selezionati
-    var y = d3.scale.log()
+    y = d3.scale.log()
               .rangeRound([0, h_info/2], .1);
                 
     //valorei minimo e massimo di inizio e fine dei blocchi
@@ -360,7 +360,7 @@ function window_info_scale(reg, h_info){
  * fare un clean della finestra e riattivare la struttura del gene
  */
 function svg_info_box(){
-    
+
     //dimensioni fisse della finestra degli elementi selezionati
     s_w = 600;
     s_h = 200;
@@ -376,16 +376,14 @@ function svg_info_box(){
                                     
     var s_i = set_svg("expande_info", s_w, s_h, p_s);
     
-    s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; })
-        .style("border", "3px solid #cccccc")
-        .style("border-radius", 4);
+    s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; });
     
     //bottone per cancellare il contenuto della finestra e riattivare
     //la struttura del gene    
     d3.select("body").append("button")
-        .attr("id", "clear_vis")
+        .attr("id", "clear_button")
         .text("Clear")
-        .style("top", "378px")
+        .style("top", "380px")
         .style("left", "625px")
         .style("position", "absolute")
         .on("click", function(){ 
@@ -413,6 +411,14 @@ function svg_info_box(){
                         d3.select("#title_sequence_box").remove();    
                         d3.select("#sequence_ex").remove();
                         d3.select("#sequence_in").remove(); }); 
+    
+    d3.select("body").append("button")
+        .attr("id", "show_button")
+        .text("Show Info")
+        .style("top", "410px")
+        .style("left", "625px")
+        .style("position", "absolute"); 
+    
     return s_i;
 }
 
@@ -441,9 +447,14 @@ function element_selected_exon(e_i, s, e){
     return ex;
 }
 
+/* CONNECT_EXON
+* exon -> esone sulla struttura del gene
+* sequence -> sequenza del'esone
+*
+* Crea un link tra l'esone selezionato e la corrispondente sequenza nucleotidica
+*/
 function connect_exon(exon, sequence){
-	
-	
+		
 	var xr_s = +exon.attr("x");
 	var yr_s = +exon.attr("y") + +exon.attr("height") + 2;
 	var xt_s = +sequence.attr("x") + 2;
@@ -473,23 +484,32 @@ function connect_exon(exon, sequence){
       
 }
 
+
+/* CONNECT_INTRON
+* intron -> introne sulla struttura del gene
+* sequence -> sequenza del'esone
+*
+* Crea un link tra l'introne selezionato e la corrispondente sequenza nucleotidica
+*/
 function connect_intron(intron, sequence){
 	
-	
-	var xr_s = +intron.attr("x");
-	var yr_s = +intron.attr("y") + +intron.attr("height") + 2;
+	var xr_s = +intron.attr("x1");
+	var yr_s = +intron.attr("y1");
 	var xt_s = +sequence.attr("x") + 2;
 	var yt_s = +sequence.attr("y") - 7;
 	
-	var xr_e = +intron.attr("x") + +intron.attr("width");
-	var yr_e = +intron.attr("y") + +intron.attr("height") + 2;
+	var xr_e = +intron.attr("x2");
+	var yr_e = +intron.attr("y2");
 	var xt_e = +sequence.attr("x") + sequence.text().length*10 + 2;
 	var yt_e = +sequence.attr("y") - 7;
+	
+	var off_set_s = off_set_ex - sequence.text().length*12 + 2;
+	var off_set_e = off_set_ex - sequence.text().length*10;
 
     point = [{ "source" : { "x" : xr_s + margin_isoform.left, "y" : yr_s}, 
-    		   "target" : { "x" : xt_s + (margin_isoform.left * 20), "y" : yt_s + 135}},
+    		   "target" : { "x" : xt_s + (margin_isoform.left * 20) + off_set_s, "y" : yt_s + 135}},
     		 { "source" : { "x" : xr_e + margin_isoform.left, "y" : yr_e}, 
-    		   "target" : { "x" : xt_e + (margin_isoform.left * 20), "y" : yt_e + 135}} ];
+    		   "target" : { "x" : xt_e + (margin_isoform.left * 20) + off_set_e, "y" : yt_e + 135}} ];
     		  
     var diagonal = d3.svg.diagonal()
     	.source(function(d) { return {"x":d.source.y, "y":d.source.x}; })            
@@ -526,6 +546,7 @@ function element_selected_intron(s, e){
 	return intron_selected;
 }
 
+
 /* DISPLAY_INFO
  * s_i -> finestra creata per visualizzare le informazioni
  * domain -> dominio della finestra di visualizzazione degli elementi
@@ -539,10 +560,10 @@ function element_selected_intron(s, e){
 function display_info(s_i, domain, elements, r, x){
     
     //elementi estratti dalla selezione
-    var exons_info = elements[0];
-    var introns_info = elements[1];
+    exons_info = elements[0];
+    introns_info = elements[1];
     
-    var tipElement = d3.tip()
+    tipElement = d3.tip()
         .attr('class', 'd3-tip')
         .offset([10, 0])
         .direction("e")
@@ -553,7 +574,7 @@ function display_info(s_i, domain, elements, r, x){
                         d.end + "</span>";
                     
         });
-    s_i.call(tipElement);
+    
     
     //variabili per le operazioni di trasformazione 
     var transf = {
@@ -568,14 +589,52 @@ function display_info(s_i, domain, elements, r, x){
         	.scale(function () { return [2, 1]; }),
         //traslazione contenitore elementi 
     	tf_g : d3.svg.transform()
-        	.translate(function (d, i) { return [15, 20]; })
+        	.translate(function (d, i) { return [15, 20]; }),
+        tf_table_title : d3.svg.transform()
+        	.translate(function (d, i) { return [s_w/2, 0]; }),
+        tf_table_info : d3.svg.transform()
+        	.translate(function (d, i) { return [s_w/2, 20]; })
        };
+    var table_title = s_i.append("g")
+        .attr("id", "table_title")
+        .attr("transform", transf.tf_table_title);
+        //.attr("visibility", "hidden");
+    table_title.append("rect")
+    	.attr("x", "0")
+    	.attr("y", "0")
+    	.attr("width", "100%")
+    	.attr("height", "20")
+    	.style("fill", "none")
+    	.style("stroke", "blue");
+    table_title.append("text")
+    	.attr("x", s_w/8)
+    	.attr("y", 15)
+    	.style("font-size", "16px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.text("Start");
+    table_title.append("text")
+    	.attr("x", s_w/3)
+    	.attr("y", 15)
+    	.style("font-size", "16px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.text("End");
+    	
+    var table_info = s_i.append("g")
+        .attr("id", "table_info")
+        .attr("transform", transf.tf_table_info);
+    table_info.append("rect")
+    	.attr("x", "0")
+    	.attr("y", "0")
+    	.attr("width", "100%")
+    	.attr("height", "100%")
+    	.style("fill", "none")
+    	.style("stroke", "red");
     
     var g = s_i.append("g")
         .attr("id", "regions_selected")
-        .attr("transform", transf.tf_g)
-        .call(tipElement);
-        
+        .attr("transform", transf.tf_g);        
     g.selectAll("rect")
         .data(exons_info)
         .enter().append("rect")
@@ -586,7 +645,6 @@ function display_info(s_i, domain, elements, r, x){
         .attr("transform", transf.t_e)
         .on("mouseover", function(d) { 
                             d3.select(this).style('cursor', 'pointer');
-                            //tipElement.show();
                             //esone selezionato nella struttura
                             var s = element_selected_exon(r, x(d.start), x(d.end));
                             
@@ -594,15 +652,17 @@ function display_info(s_i, domain, elements, r, x){
                             //sequenza nucleotidica corrispondente
                             var t = d3.select(seq_id);
                             t.style("fill", "red");
-                            connect_exon(s, t);})
+                            connect_exon(s, t);
+                            
+                            })
         .on("mouseout", function(d) { 
                             d3.select(this).style('cursor', 'default');
                             d3.select("#element_info_exon").remove();
-                            //tipElement.hide();
                             
                             seq_id = "#sequence_ex_" + d.id;
                             d3.select(seq_id).style("fill", "black");
-                            d3.selectAll(".link").remove(); });
+                            d3.selectAll(".link").remove();
+                           });
            
     if(introns_info != null){
     	g.selectAll("line")
@@ -626,14 +686,16 @@ function display_info(s_i, domain, elements, r, x){
                                 g.append("text")
                                     .attr("x", domain(d.start) - 15)
                                     .attr("y", 38)
-                                    .attr("font-size", "10px")
+                                    .style("font-size", "10px")
                                     .attr("transform", tf_info_text)
+                                    .style("font-family", "Arial, Helvetica, sans-serif")
                                     .style("fill", "black")
                                     .text(d.pattern.slice(0,2).toUpperCase());
                                 g.append("text")
                                     .attr("x", domain(d.end + 10))
                                     .attr("y", 38)
-                                    .attr("font-size", "10px")
+                                    .style("font-size", "10px")
+                                    .style("font-family", "Arial, Helvetica, sans-serif")
                                     .attr("transform", tf_info_text)
                                     .style("fill", "black")
                                     .text(d.pattern.slice(2,4).toUpperCase());
@@ -642,7 +704,7 @@ function display_info(s_i, domain, elements, r, x){
                                 seq_id = "#sequence_in_" + d.id;
                                 var t = d3.select(seq_id);
                                 t.style("fill", "red");
-                                //connect_intron(s, t);
+                                connect_intron(s, t);
                                  })
             .on("mouseout", function(d) { 
                                 d3.select(this).style('cursor', 'default');
@@ -652,6 +714,7 @@ function display_info(s_i, domain, elements, r, x){
                                 g.selectAll("text").remove();
                                 d3.selectAll(".link").remove(); });
 	}   
+	
 }
 
 /* DISPLAY_INFO_STRIPE
@@ -671,22 +734,6 @@ function display_info_stripe(s_i, domain, elements, r, x){
     var exons_info = elements[0];
     var introns_info = elements[1];
     
-    var tipElement = d3.tip()
-        .attr('class', 'd3-tip')
-        .offset([10, 0])
-        .direction("e")
-        .html(function(d) {
-                return "<strong>Region:</strong> <span style='color:red'>" + 
-                        d.id + "</span>" + 
-                        "<br><strong>Start:</strong> <span style='color:yellow'>" + 
-                        d.start + "</span>" +
-                        "<br><strong>End:</strong> <span style='color:yellow'>" + 
-                        d.end + "</span>" +
-                        "<br><strong>Sequence:</strong> <span style='color:green'>" + 
-                        d.sequence + "</span>";
-                    
-        });
-    
     var transf = {
     	
     	//traslazione esoni   
@@ -704,9 +751,7 @@ function display_info_stripe(s_i, domain, elements, r, x){
    
     var g = s_i.append("g")
         .attr("id", "regions_selected")
-        .attr("transform", transf.tf_g)
-        .call(tipElement);
-        
+        .attr("transform", transf.tf_g);        
     g.selectAll("rect")
         .data(exons_info)
         .enter().append("rect")
@@ -744,7 +789,7 @@ function display_info_stripe(s_i, domain, elements, r, x){
 			.style("stroke-width", 8)
 			.on("mouseover", function(d, i) { 
                                 d3.select(this).style('cursor', 'pointer');
-                                element_selected_intron(x(d.start), x(d.end));
+                                var s = element_selected_intron(x(d.start), x(d.end));
                                 //traslazione testo pattern
                                 var tf_info_text = d3.svg.transform()
                                     .translate(function () { 
@@ -767,14 +812,16 @@ function display_info_stripe(s_i, domain, elements, r, x){
                                     .text(d.pattern.slice(2,4).toUpperCase());
                                     
                                 seq_id = "#sequence_in_" + d.id;
-                                d3.select(seq_id)
-                                    .style("fill", "red"); })
+                                var t = d3.select(seq_id);
+                                t.style("fill", "red");
+                                connect_intron(s, t); })
             .on("mouseout", function(d) { 
                                 d3.select(this).style('cursor', 'default');
                                 d3.select("#element_info_intron").remove();
                                 seq_id = "#sequence_in_" + d.id;
                                 d3.select(seq_id).style("fill", "black");
-                                g.selectAll("text").remove(); });   
+                                g.selectAll("text").remove();
+                                d3.selectAll(".link").remove(); });   
 	}     
 }
 
@@ -1004,7 +1051,7 @@ function clone_triangle_up(svg, obj) {
 	
 	var triangle_down = svg.append("use")
     	.attr("xlink:href","#" + obj.attr("id"))
-    	.attr("transform", "translate(0, 140)")
+    	.attr("transform", "translate(0, 136)")
     	.attr("id", "triangle_down");
     
     return triangle_down;   
@@ -1042,6 +1089,7 @@ function draw_splice_sites(box, s_s, x_scale){
 		.attr("y2", 110)
 		.style("opacity", "0.0")
 		.style("stroke", "black")
+		.style("strole-width", "1px")
 		//.style("stroke-width", 3)
 		.style("stroke-dasharray", function(d) { 
 		                              if ((d.type == "init") | (d.type == "term"))
@@ -1053,6 +1101,11 @@ function draw_splice_sites(box, s_s, x_scale){
 	    .delay(1500)
 	    .duration(750)
 	    .style("opacity", "1.0");
+	    
+	/*<marker id="markerArrow" markerWidth="13" markerHeight="13" refx="2" refy="6"
+       orient="auto">
+    <path d="M2,2 L2,11 L10,6 L2,2" style="fill: #000000;" />
+</marker>*/
 										  
 	//segnale alto tipologia splice_site		
 	var triangle_up = box.append("g")
@@ -1063,17 +1116,17 @@ function draw_splice_sites(box, s_s, x_scale){
 		.data(s_s)
 		.enter().append("path")
 		.attr("id", function(d, i) { return "up" + i; })
-		.attr("d",s_sy)
-		.attr("fill", "red")
-		.attr("stroke","#000")
-		.attr("stroke-width",1)
+		.attr("d", s_sy)
+		.attr("fill", "none")
+		.attr("stroke","black")
+		.attr("stroke-width", "1px")
 		.style("opacity", "0.0")
 		.attr("transform", function (d) {
 		                      if((d.type == 3) | (d.type == "term"))
-							     return "translate(" + (x_scale(d.position) - 3) + ",-30)" + "rotate(-90)";
+							     return "translate(" + (x_scale(d.position) - 3) + ",-27)" + "rotate(-90)";
 							  else
 							     if((d.type != "unknow") | (d.type == "init"))
-								    return "translate(" + (x_scale(d.position) + 3) + ",-30)" + "rotate(90)"; })
+								    return "translate(" + (x_scale(d.position) + 3) + ",-27)" + "rotate(90)"; })
 	    .transition()
         .delay(1500)
         .duration(750)
@@ -1100,13 +1153,12 @@ function sequence_box(isoform_box, seq_info){
         .attr("id", "title_sequence_box")
         .attr("x", 0)
         .attr("y", 30)
-        .attr("font-family", "Arial, Helvetica, sans-serif")
-        .attr("font-size", "20px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("font-size", "20px")
         .text("Nucleic sequence:")
         .attr("transform", "translate(" + margin_isoform.left + ", 190)");
     
     //offset tra sequenze di esoni e introni 
-    var off_set_ex;
     if(seq_info[0].length > 1)   	
 		off_set_ex = seq_info[0].length * 250;
 	else
@@ -1129,8 +1181,8 @@ function sequence_box(isoform_box, seq_info){
     	.attr("id", function(d) { return "sequence_ex_" + d.id; })
         .attr("x", function (d, i) { return (i * 11.5 * d.sequence.length); })
         .attr("y", 30)
-        .attr("font-size", "16px")
-        .attr("font-family", "Arial, Helvetica, sans-serif")
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
         .style("fill", "black")
         .text(function(d) { return d.sequence.toUpperCase(); });
         
@@ -1141,8 +1193,8 @@ function sequence_box(isoform_box, seq_info){
             .attr("id", function(d) { return "sequence_in_" + d.id; })
             .attr("x", function (d, i) { return (i * 12 * (d.prefix + d.suffix).length); })
             .attr("y", 30)
-            .attr("font-size", "16px")
-            .attr("font-family", "Arial, Helvetica, sans-serif")
+            .style("font-size", "16px")
+            .style("font-family", "Arial, Helvetica, sans-serif")
             .style("fill", "black")
             .text(function(d) { return (d.prefix + d.suffix).toUpperCase(); });
      
@@ -1203,13 +1255,13 @@ function select_gene(){
       
     var s_g = d3.select("body").append("g");
     s_g.style("top", "15px")
-       .style("left", "25px")
+       .style("left", "20px")
        .style("position", "absolute");
-    s_g.html(function() { return '<select id="selezione"><option value="ATP6AP1example2">ATP6AP1</option>' + 
+    s_g.html(function() { return '<select><option value="ATP6AP1example2">ATP6AP1</option>' + 
                                    '<option value="ATP6AP1example3">ATP6AP1_v2</option>' + 
                                    '</select>'; }); 
     
-    s = d3.select("#selezione")
+    s = d3.select("select")
             .on("change", change_gene);
     
     s.property("value", "ATP6AP1example2");
@@ -1226,8 +1278,6 @@ function select_gene(){
     	bottom : "10px"
     };
     svg_box = set_svg("isoform", width - margin_isoform.right + margin_isoform.left, 250, pos_box);
-    svg_box.style("border", "3px solid #cccccc")
-        .style("border-radius", 4);
         
     init();   
     
@@ -1258,14 +1308,12 @@ function display_gene(id){
     };
     
     var svg_title = set_svg("title", width / 2 - margin_isoform.right + margin_isoform.left, 50, pos_title);
-    svg_title.style("border", "3px solid #cccccc")
-        .style("border-radius", 4);
     svg_title.append("text")
        .attr("id", "title")
        .attr("x", 10)
        .attr("y", 35)
-       .attr("font-family", "Arial, Helvetica, sans-serif")
-       .attr("font-size", "30px")
+       .style("font-family", "Arial, Helvetica, sans-serif")
+       .style("font-size", "30px")
        .style("fill", "black")
        .style("opacity", "0.0")
        .text(title)
