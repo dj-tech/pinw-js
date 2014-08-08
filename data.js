@@ -363,9 +363,13 @@ function window_info_scale(reg, h_info){
  * Rimuove gli elementi presenti nell'info_box al cambio
  * del gene
  */
-function rm_element_info_box(){
+function remove_element_info_box(){
 	
-	d3.select("#regions_selected").remove(); 
+	d3.select("#regions_selected")
+		.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+		.remove(); 
                         
     d3.selectAll("#exon")
     	.attr("pointer-events", "yes")
@@ -386,12 +390,36 @@ function rm_element_info_box(){
     	.style("stroke", "black")
     	.attr("pointer-events", "yes");
     
-    d3.select("#title_sequence_box").remove();    
-    d3.select("#sequence_ex").remove();
-    d3.select("#sequence_in").remove();
-    d3.select("#table_title").remove();
-    d3.select("#table_start").remove();
-    d3.select("#table_end").remove(); 
+    d3.select("#title_sequence_box")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();    
+    d3.select("#sequence_ex")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#sequence_in")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#table_title")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#table_start")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#table_end")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove(); 
 }
 
 
@@ -428,7 +456,7 @@ function svg_info_box(){
         .style("top", "380px")
         .style("left", "625px")
         .style("position", "absolute")
-        .on("click", rm_element_info_box); 
+        .on("click", remove_element_info_box); 
     
     d3.select("body").append("button")
         .attr("id", "show_button")
@@ -1105,6 +1133,9 @@ function draw_exons(box, exons, x_scale){
 		                  d3.selectAll("#exon")
 						    .style("fill", color_exon_after)
 							.attr("pointer-events", "none");
+						  
+						  d3.selectAll("#exon_stripe")
+							.attr("pointer-events", "none");
 							
 						  d3.selectAll("#intron")
                             .style("stroke", color_intron_after)
@@ -1232,14 +1263,11 @@ function draw_introns(box, introns, x_scale){
  * Il contenitore "g" del "segnale alto" della tipologia degli splice sites 
  * viene clonato e riutilizzato per aggiungere un "segnale basso".
  */
-function clone_triangle_up(svg, obj) {
+function clone_svg_element(svg, obj) {
 	
 	var triangle_down = svg.append("use")
-    	.attr("xlink:href","#" + obj.attr("id"))
-    	.attr("transform", "translate(0, 136)")
-    	.attr("id", "triangle_down");
-    
-    return triangle_down;   
+    	.attr("xlink:xlink:href","#" + obj.attr("id"));
+    return triangle_down;
 }
 
 
@@ -1319,9 +1347,40 @@ function draw_splice_sites(box, s_s, x_scale){
         .delay(1500)
         .duration(750)
         .style("opacity", "1.0");
+    
+    var triangle_down = box.append("g")
+		.attr("id", "triangle_down")
+		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top/2 + ")");
+											
+	triangle_down.selectAll("path")
+		.data(s_s)
+		.enter().append("path")
+		.attr("id", function(d, i) { return "up" + i; })
+		.attr("d", s_sy)
+		.attr("fill", "none")
+		.attr("stroke","black")
+		.attr("stroke-width", "1px")
+		.style("opacity", "0.0")
+		.attr("transform", function (d) {
+		                      if((d.type == 3) | (d.type == "term"))
+							     return "translate(" + (x_scale(d.position) - 3) + ", 106)" + "rotate(-90)";
+							  else
+							     if((d.type != "unknow") | (d.type == "init"))
+								    return "translate(" + (x_scale(d.position) + 3) + ", 106)" + "rotate(90)"; })
+	    .transition()
+        .delay(1500)
+        .duration(750)
+        .style("opacity", "1.0");
         
-	//viene clonato triangle_up										 
-	var triangle_down = clone_triangle_up(box, triangle_up);
+	/*//viene clonato triangle_up										 
+	var td = clone_svg_element(box, triangle_up);
+	td.attr("transform", "translate(0, 136)")
+    	.attr("id", "triangle_down")
+    	.attr("opacity", "0.0")
+    	.transition()
+        .delay(1500)
+        .duration(750)
+        .style("opacity", "1.0");*/
 			
 	return splice_sites;
 }
@@ -1447,7 +1506,7 @@ function change_gene(){
     //rimozione del titolo
     d3.select("#title").remove();
     
-    rm_element_info_box();
+    remove_element_info_box();
     
     init();   
 }
