@@ -372,21 +372,33 @@ function remove_element_info_box(){
 		.remove(); 
                         
     d3.selectAll("#exon")
+    	.transition()
+        .duration(750)
+        .style("opacity","1.0")
     	.attr("pointer-events", "yes")
       	.style("stroke-width", 0)
       	.style("fill", function() { return d3.rgb("#228B22"); });
                                    
     d3.selectAll("#exon_stripe")
+    	.transition()
+        .duration(750)
+        .style("opacity","1.0")
     	.attr("pointer-events", "yes")
         .style("stroke-width", 0)
         .style("fill", 'url(#diagonalHatch)');
                         
     d3.selectAll("#exon")
+    	.transition()
+        .duration(750)
+        .style("opacity","1.0")
     	.attr("pointer-events", "yes")
         .style("stroke-width", 0)
         .style("fill", function() { return d3.rgb("#228B22"); });
                         
     d3.selectAll("#intron")
+    	.transition()
+        .duration(750)
+        .style("opacity","1.0")
     	.style("stroke", "black")
     	.attr("pointer-events", "yes");
     
@@ -1556,14 +1568,14 @@ function select_gene(){
  * Visualizza il nome del gene di cui sarà visualizzata
  * la struttura.
  */
-function display_gene(id){
+function display_gene(){
     
     var color_gene = function() { return d3.rgb("black"); };
     
     //variabile per il titolo
     var title = "";
     
-    title = title.concat(id + " gene structure");
+    title = title.concat(original_info.gene + " gene structure");
     
     //array per il posizionamento
     var pos_title = {
@@ -1587,10 +1599,55 @@ function display_gene(id){
        .transition()
        .duration(1000)
        .style("opacity", "1.0");
+      
+	svg_title.append("text")
+       .attr("x", 425)
+       .attr("y", 15)
+       .style("font-family", "Arial, Helvetica, sans-serif")
+       .style("font-size", "12px")
+       .style("fill", color_gene)
+       .style("opacity", "0.0")
+       .text(function () { 
+       				var s = "sequence_id -> ";
+       				return s + original_info.sequence_id; })
+       .transition()
+       .duration(1000)
+       .style("opacity", "1.0");
+       
+    svg_title.append("text")
+       .attr("x", 425)
+       .attr("y", 30)
+       .style("font-family", "Arial, Helvetica, sans-serif")
+       .style("font-size", "12px")
+       .style("fill", color_gene)
+       .style("opacity", "0.0")
+       .text(function () { 
+       				var s = "program_version -> ";
+       				return s + original_info.program_version; })
+       .transition()
+       .duration(1000)
+       .style("opacity", "1.0");
+    
+    svg_title.append("text")
+       .attr("x", 425)
+       .attr("y", 45)
+       .style("font-family", "Arial, Helvetica, sans-serif")
+       .style("font-size", "12px")
+       .style("fill", color_gene)
+       .style("opacity", "0.0")
+       .text(function () { 
+       				var s = "file_format -> ";
+       				return s + original_info.file_format_version; })
+       .transition()
+       .duration(1000)
+       .style("opacity", "1.0");
+    
+    
+    console.log(original_info);
 }
 
 
-/* COPY_STRUCTURE
+/* COPY_REGIONS
  * s -> struttura da copiare
  * 
  * Copia il vettore delle regioni che poi sara modificato
@@ -1614,6 +1671,24 @@ function copy_regions(s){
     return copy_reg;    
 }
 
+/* COPY_INFO_GENE
+ * s -> struttura da copiare
+ * 
+ * Copia gli oggetti relativi alle informazione
+ * sul gene.
+ */
+function copy_info_gene(s){
+    
+    var copy_info;
+    copy_reg = {
+    	"sequence_id" : s.sequence_id,
+        "program_version" : s.program_version,
+        "file_format_version" : s.file_format_version,
+        "gene" : s.gene    
+    };
+    
+    return copy_reg;    
+}
 
 /* INIT
  * 
@@ -1635,13 +1710,15 @@ function init(){
 	   console.log(error);
 	   isoform = atp[0];
 	   
+	   original_info = copy_info_gene(isoform);
+	   
 	   //copia dell'array originale delle regioni
 	   original_regions = copy_regions(isoform.regions);
 	   //regioni
 	   x = isoform_range(isoform.regions);
 	   regions = regions_scaled(isoform.regions);
 	
-	   display_gene(isoform.gene);
+	   display_gene();
 	
 	   //boundaries
 	   boundaries = isoform.boundaries;
