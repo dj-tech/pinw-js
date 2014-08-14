@@ -1,12 +1,12 @@
 [
 	{
-		"sequence_id" : "chr1:1:1338447:-1",
+		"sequence_id" : "chr1:1:1338447:-2",
 		
 		"program_version" : "blablabla",
 		
 		"file_format_version" : "blablabla",
 		
-		"gene" : "ATP6AP1_v2",
+		"gene" : "ATP6AP1_ex2",
 		
 		"regions" : [
 			
@@ -56,7 +56,7 @@
 			
 			{
 				"start" : 543224,
-				"end" : 544806,
+				"end" : 545706,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "codifying",
 				"alternative" : true,
@@ -66,7 +66,7 @@
 			},
 				
 			{
-				"start" : 544807,
+				"start" : 545707,
 				"end" : 545878,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "spliced",
@@ -181,7 +181,7 @@
 				"end" : 548495,
 				"sequence" : "aaaaaaaaaaaa",
 				"type" : "codifying",
-				"alternative" : true,
+				"alternative" : false,
 				"coverage" : 100,
 				"last" : true,
 				"id" : 16

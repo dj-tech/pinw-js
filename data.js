@@ -1535,8 +1535,9 @@ function select_gene(){
     s_g.style("top", "15px")
        .style("left", "20px")
        .style("position", "absolute");
-    s_g.html(function() { return '<select><option value="ATP6AP1example2">ATP6AP1</option>' + 
-                                   '<option value="ATP6AP1example3">ATP6AP1_v2</option>' + 
+    s_g.html(function() { return '<select><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
+    							   '<option value="ATP6AP1example2">ATP6AP1_ex2</option>' +
+                                   '<option value="ATP6AP1example3">ATP6AP1_ex3</option>' + 
                                    '</select>'; }); 
     
     s = d3.select("select")
@@ -1699,7 +1700,7 @@ function copy_info_gene(s){
 function init(){
     
     //stringa per il pathname del file json
-    var string = "";
+    var string = "json/";
     string = string.concat(s.property("value"), ".json");
     
     //console.log(string);

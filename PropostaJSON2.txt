@@ -1,6 +1,6 @@
 Dizionario top-level:
 	
-	key=�"sequence_id"; value -> FASTA header del file della genomica (senza '>') (chiave obbligatoria)
+	key="sequence_id"; value -> FASTA header del file della genomica (senza '>') (chiave obbligatoria)
 	key="program_version"; value -> la versione della pipeline che ha prodotto il JSON
 	key="file_format_version"; value -> versione del JSON schema
 	key="regions"; value -> array delle regioni (chiave obbligatoria)		
@@ -55,15 +55,15 @@ Dizionario top-level:
 					si abbia "first"=-1 OPPURE "last?"=false per la regione di indice "first" (cioe' quella di sinistra),					
 				(5) "type"="5" significa che il boundary e' un confine esone-introne: la fine dell'esone coincide con "end"
 					della regione di sinistra, mentre l'inizio dell'introne coincide con "start" della regione di destra
-					(la posizione dello splice site � in questo caso lo "start" della regione di destra)
+					(la posizione dello splice site è in questo caso lo "start" della regione di destra)
 				(6) "type"="3" significa che il boundary e' un confine introne-esone: la fine dell'introne coincide con "end"
 					della regione di sinistra, mentre l'inizio dell'esone coincide con "start" della regione di destra
-					(la posizione dello splice site � in questo caso l'"end" della regione di sinistra)
+					(la posizione dello splice site è in questo caso l'"end" della regione di sinistra)
 				(7) type="both" significa che il boundary e' sia un confine esone-introne che introne-esone:
-					(la posizione dello splice site � in questo caso lo "start" della regione di destra)
-				(8) type="init" significa che lo "start" della regione di destra � un inizio di trascrizione (cio� � la posizione
+					(la posizione dello splice site è in questo caso lo "start" della regione di destra)
+				(8) type="init" significa che lo "start" della regione di destra è un inizio di trascrizione (cioè la posizione
 					visualizzata)
-				(9) type="term" significa che l'"end" della regione di sinistra � un termine di trascrizione (cio� � la posizione
+				(9) type="term" significa che l'"end" della regione di sinistra è un termine di trascrizione (cioè la posizione
 					visualizzata)
 
 *********************************************************************************************************************************
