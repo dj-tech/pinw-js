@@ -357,6 +357,186 @@ function window_info_scale(reg, h_info){
     return y;
 }
 
+function legend_box(){
+
+    //dimensioni fisse della finestra degli elementi selezionati
+    var l_w = 600;
+    var l_h = 50;
+    var off_set_x = 50;
+    var off_set_y = 25;
+    var height_exon = 18;
+    
+    //vettore per il posizionamento            
+    var p_s = {
+    	pos : "absolute", 
+    	left : (window.innerWidth - l_w - margin_isoform.left) +  "px",
+    	right : "10px",
+    	top: "40px", 
+    	bottom : "10px"
+    };
+    
+    //variabile per traslare gli esoni
+	var tf_element = d3.svg.transform()
+		.translate(function () { return [220, 3]; });
+	var tf_text = d3.svg.transform()
+		.translate(function () { return [220, 7]; });
+	
+	var color_exon = function() { return d3.rgb("#228B22"); };
+	var color_exon_stripe = function() { return 'url(#diagonalHatch)'; };
+    var color_intron = function() { return d3.rgb("black"); };
+    var color_splice_site = function() { return d3.rgb("black"); };
+                                        
+    var s_l = set_svg("legend", l_w, l_h, p_s);
+   
+    s_l.attr("viewbox", function() { return "0 0" + l_w + l_h; });
+    
+    s_l.append("text")
+    	.attr("x", 20)
+    	.attr("y", 35)
+    	.style("font-size", "30px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.text("Legend")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+
+    //esoni
+    s_l.append("rect")
+    	.attr("x", 0)
+    	.attr("y", 0)
+    	.attr("width", 40)
+    	.attr("height", height_exon)
+    	.attr("transform", tf_element)
+    	.style("fill", color_exon)
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    s_l.append("text")
+    	.attr("x", off_set_x)
+    	.attr("y", height_exon/2)
+    	.style("font-size", "12px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.attr("transform", tf_text)
+    	.text("Alternative exons")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    
+    s_l.append("rect")
+    	.attr("x", 0)
+    	.attr("y", off_set_y)
+    	.attr("width", 40)
+    	.attr("height", height_exon)
+    	.attr("transform", tf_element)
+    	.style("fill", color_exon)
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    s_l.append("rect")
+    	.attr("x", 0)
+    	.attr("y", off_set_y)
+    	.attr("width", 40)
+    	.attr("height", height_exon)
+    	.attr("transform", tf_element)
+    	.style("fill", color_exon_stripe)
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    s_l.append("text")
+    	.attr("x", off_set_x)
+    	.attr("y", height_exon/2 + off_set_y)
+    	.style("font-size", "12px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.attr("transform", tf_text)
+    	.text("Conservative exons")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    
+    //introni	
+    s_l.append("line")
+    	.attr("x1", off_set_x * 4)
+    	.attr("y1", 10)
+		.attr("x2", off_set_x * 4 + 40)
+		.attr("y2", 10)
+    	.attr("transform", tf_element)
+    	.style("stroke", color_intron)
+    	.style("stroke-width", 6)
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    s_l.append("text")
+    	.attr("x", off_set_x * 5)
+    	.attr("y", 10)
+    	.style("font-size", "12px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.attr("transform", tf_text)
+    	.text("Introns")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+   
+    s_l.append("line")
+    	.attr("x1", off_set_x * 4)
+    	.attr("y1", off_set_y)
+		.attr("x2", off_set_x * 4)
+		.attr("y2", off_set_y + 20)
+    	.attr("transform", tf_element)
+    	.style("stroke", color_intron)
+    	.style("stroke-width", 2)
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    s_l.append("line")
+    	.attr("x1", off_set_x * 4 + 10)
+    	.attr("y1", off_set_y)
+		.attr("x2", off_set_x * 4 + 10)
+		.attr("y2", off_set_y + 20)
+    	.attr("transform", tf_element)
+    	.style("stroke", color_intron)
+    	.style("stroke-width", 2)
+    	.style("stroke-dasharray", 4)
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0");
+    s_l.append("text")
+    	.attr("x", off_set_x * 5)
+    	.attr("y", off_set_y + 10)
+    	.style("font-size", "12px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.attr("transform", tf_text)
+    	.text("Splice sites").transition()
+	    .delay(1500)
+	    .duration(750)
+	    .style("opacity", "1.0"); 
+    
+}
 
 /* RM_ELEMENT_INFO_BOX
  * 
@@ -442,19 +622,22 @@ function remove_element_info_box(){
  * fare un clean della finestra e riattivare la struttura del gene
  */
 function svg_info_box(){
-
-    //dimensioni fisse della finestra degli elementi selezionati
-    s_w = 600;
-    s_h = 200;
-    
+	
+	 
+ 
     //vettore per il posizionamento            
     var p_s = {
     	pos : "absolute", 
-    	left : "20px",
+    	left : window.innerWidth / 4 + "px",
     	right : "10px",
     	top: "380px", 
     	bottom : "10px"
     };
+    
+     //dimensioni fisse della finestra degli elementi selezionati
+    s_w = 600;
+    s_h = 200;
+    console.log(s_h);
                                     
     var s_i = set_svg("expande_info", s_w, s_h, p_s);
     
@@ -466,7 +649,7 @@ function svg_info_box(){
         .attr("id", "clear_button")
         .text("Clear")
         .style("top", "380px")
-        .style("left", "625px")
+        .style("left", function () { return (window.innerWidth / 4 + s_w + 5) + "px"; })
         .style("position", "absolute")
         .on("click", remove_element_info_box); 
     
@@ -474,7 +657,7 @@ function svg_info_box(){
         .attr("id", "show_button")
         .text("Show Info")
         .style("top", "410px")
-        .style("left", "625px")
+        .style("left", function () { return (window.innerWidth / 4 + s_w + 5) + "px"; })
         .style("position", "absolute")
         .on("click", function() {
             d3.select("#table_title").attr("visibility", "visible")
@@ -1317,8 +1500,7 @@ function draw_splice_sites(box, s_s, x_scale){
 		.attr("y2", 110)
 		.style("opacity", "0.0")
 		.style("stroke", color_s_s)
-		.style("strole-width", "1px")
-		//.style("stroke-width", 3)
+		.style("strole-width", "2px")
 		.style("stroke-dasharray", function(d) { 
 		                              if ((d.type == "init") | (d.type == "term"))
 									       return 4;
@@ -1559,7 +1741,9 @@ function select_gene(){
         
     init();   
     
-    svg_info = svg_info_box();                           
+    svg_info = svg_info_box();  
+    
+    legend_box();                         
 }
 
 
