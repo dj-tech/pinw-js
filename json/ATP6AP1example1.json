@@ -287,73 +287,73 @@
 			{
 				"left_boundary" : 0,
 				"right_boundary" : 2,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 1,
 				"right_boundary" : 2,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 1,
 				"right_boundary" : 4,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 3,
 				"right_boundary" : 4,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 3,
 				"right_boundary" : 5,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 6,
 				"right_boundary" : 7,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 8,
 				"right_boundary" : 9,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 8,
 				"right_boundary" : 10,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 11,
 				"right_boundary" : 12,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 13,
 				"right_boundary" : 15,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 14,
 				"right_boundary" : 15,
-				"annotated?" : false
+				"annotated" : false
 			},
 
 			{
 				"left_boundary" : 16,
 				"right_boundary" : 17,
-				"annotated?" : false
+				"annotated" : false
 			}
 
 		],

@@ -4,7 +4,7 @@ body {
 }
 #isoform {
     background: white;
-    border: 3px solid #bdc3c7;
+    border: 3px solid rgba(34, 139, 34, 0.7);
     border-radius: 8px;
 }
         

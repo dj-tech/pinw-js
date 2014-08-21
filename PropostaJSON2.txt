@@ -23,15 +23,16 @@ Dizionario top-level:
 			key="end"; value -> posizione 1-based di fine sulla genomica (chiave obbligatoria)
 			key="sequence"; value -> sequenza nucleotidica
 			key="type"; value -> "codifying" se la regione e' codificante, "spliced" se e' non codificante, "unknown" se e' unknown (chiave obbligatoria)
-			key="alternative?"; value -> true se la regione codificante e' alternativa, false se e' conservata (chiave
+			key="alternative"; value -> true se la regione codificante e' alternativa, false se e' conservata (chiave
 				obbligatoria solo se "type"="codifying"; non ha senso per "type" diverso da "codifying")
 			key="coverage"; value -> valore di copertura
-			key="last?"; value -> true se e' l'ultima regione nell'array "regions", altrimenti false (chiave obbligatoria)
+			key="last"; value -> true se e' l'ultima regione nell'array "regions", altrimenti false (chiave obbligatoria)
 			key="id"; value -> indice di posizione della regione all'interno dell'array "regions" (chiave obbligatoria)
 			
 			NOTE:
 				(1) nella visualizzazione, l'altezza del rettangolo che rappresenta una regione codificante dovrebbe essere
-				proporzionale al valore di "coverage" (per type="spliced"|"unknown" questo valore non ha senso)
+				proporzionale al valore di "coverage" (per type="spliced"|"unknown" questo valore non ha senso). GLI ESONI
+	!!!!!		SONO COMPOSTI DA REGIONI, QUINDI COME FANNO AD AVERE DIVERSE DIMENSIONI????
 
 *********************************************************************************************************************************
 	Boundary -> confine tra due regioni consecutive sulla genomica (chiamate regioni di sinistra e di destra)
@@ -49,7 +50,7 @@ Dizionario top-level:
 					il boundary non e' sicuramente uno splice site
 				(2) "first"=-1 significa che non esiste una regione di sinistra (ovvero e' da trattare come unknown) e la regione
 				di destra ha indice di posizione pari a 0: il boundary non e' sicuramente uno splice site
-				(3) "last?"=true per la regione di indice "first" (quella di sinistra) significa che non esiste una regione
+				(3) "last"=true per la regione di indice "first" (quella di sinistra) significa che non esiste una regione
 					di destra (ovvero e' da trattare come unknown): il boundary non e' sicuramente uno splice site
 		!!!		(4) ("first"+1) fornisce l'indice di posizione (nell'array "regions") della regione di destra, solo nel caso in cui
 					si abbia "first"=-1 OPPURE "last?"=false per la regione di indice "first" (cioe' quella di sinistra),					
@@ -74,7 +75,7 @@ Dizionario top-level:
 		Ogni elemento dell'array e' un hash con le seguenti chiavi:
 			key="left_boundary"; value -> indice di posizione, nell'array "boundaries", del left boundary L dell'esone
 			key="right_boundary"; value -> indice di posizione, nell'array "boundaries", del right boundary R dell'esone
-			key="annotated?"; value -> true se annotato, altrimenti false
+			key="annotated"; value -> true se annotato, altrimenti false
 			
 			NOTE:
 				(1) Il left boundary L deve avere una regione di destra NON unknowm e con "type"="codifying" (cioe' deve essere
