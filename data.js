@@ -19,7 +19,7 @@ var width = window.innerWidth;
 function exons_structure (extract_exons, extract_regions, extract_boundary) {
 	
 		
-	//array di ogetti "esone"
+	//array di oggetti "esone"
 	var exons = [];
 	
 	//numero di esoni
@@ -722,6 +722,7 @@ function remove_element_info_box(){
     	.duration(750)
     	.style("opacity", "0.0")
     	.remove(); 
+    	
     d3.select("#expande_info")
     	.style("border-color", function() { return "rgb(189, 195, 199)"; });
 	d3.select("#isoform")
@@ -763,7 +764,7 @@ function svg_info_box(){
         .attr("id", "clear_button")
         .text("Clear")
         .style("top", "380px")
-        .style("left", function () { return (pos_w + s_w + 5) + "px"; })
+        .style("left", function () { return (pos_w + s_w + 7) + "px"; })
         .style("position", "absolute")
         .on("click", remove_element_info_box); 
     
@@ -771,7 +772,7 @@ function svg_info_box(){
         .attr("id", "show_button")
         .text("Show Info")
         .style("top", "410px")
-        .style("left", function () { return (pos_w + s_w + 5) + "px"; })
+        .style("left", function () { return (pos_w + s_w + 7) + "px"; })
         .style("position", "absolute")
         .on("click", function() {
             d3.select("#table_title").attr("visibility", "visible")
@@ -924,6 +925,8 @@ function display_info(s_i, domain, elements, r, x){
     //elementi estratti dalla selezione
     var exons_info = elements[0];
     var introns_info = elements[1];
+    console.log(exons_info);
+    console.log(introns_info);
     
     var color_exon = function() { return d3.rgb("#228B22"); };
     var color_intron = function() { return d3.rgb("black"); };
@@ -983,16 +986,16 @@ function display_info(s_i, domain, elements, r, x){
     	.style("fill", "blue")
     	.text("Start");
     table_title.append("text")
-    	.attr("x", s_w*(1/3) + 26)
+    	.attr("x", s_w*(1/3) + 30)
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "blue")
     	.text("End");
     table_title.append("line")
-    	.attr("x1", 45)
+    	.attr("x1", (s_w*(1/8)) - 30)
     	.attr("y1", 20)
-    	.attr("x2", s_w - 50)
+    	.attr("x2", (s_w*(1/8)) + 250)
     	.attr("y2", 20)
     	.style("stroke", "black")
     	.style("stroke-width", "1px");
@@ -1007,10 +1010,11 @@ function display_info(s_i, domain, elements, r, x){
     	.enter().append("text")
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("transform", function(d, i) { 
+    						console.log(d.start.toString().length);
     						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - 10) + "," +  i * 45 + ")";
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
-    							return "translate(" + (s_w*(1/8) - 10) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
@@ -1027,9 +1031,9 @@ function display_info(s_i, domain, elements, r, x){
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("transform", function(d, i) { 
     						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - 10) + "," +  i * 45 + ")";
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
-    							return "translate(" + (s_w*(1/8) - 10) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
@@ -1047,7 +1051,7 @@ function display_info(s_i, domain, elements, r, x){
         .style("opacity", "0.0")
         .attr("transform", transf.t_e)
         .on("mouseover", function(d) { 
-                            d3.select(this).style('cursor', 'pointer');
+                            d3.select(this).style('cursor', 'crosshair');
                             //esone selezionato nella struttura
                             var s = element_selected_exon(r, x(d.start), x(d.end));
                             
@@ -1086,7 +1090,7 @@ function display_info(s_i, domain, elements, r, x){
 			.style("stroke-width", 8)
 			.style("opacity", "0.0")
             .on("mouseover", function(d, i) { 
-                                d3.select(this).style('cursor', 'pointer');
+                                d3.select(this).style('cursor', 'crosshair');
                                 //traslazione testo pattern
                                 var tf_info_text = d3.svg.transform()
                                     .translate(function () { 
@@ -1195,16 +1199,16 @@ function display_info_stripe(s_i, domain, elements, r, x){
     	.style("fill", "blue")
     	.text("Start");
     table_title.append("text")
-    	.attr("x", s_w*(1/3) + 26)
+    	.attr("x", s_w*(1/3) + 30)
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "blue")
     	.text("End");
     table_title.append("line")
-    	.attr("x1", 45)
+    	.attr("x1", (s_w*(1/8)) - 30)
     	.attr("y1", 20)
-    	.attr("x2", s_w - 50)
+    	.attr("x2", (s_w*(1/8)) + 250)
     	.attr("y2", 20)
     	.style("stroke", "black")
     	.style("stroke-width", "1px");
@@ -1258,7 +1262,7 @@ function display_info_stripe(s_i, domain, elements, r, x){
         .style("opacity", "0.0")
         .attr("transform", transf.t_e)
         .on("mouseover", function(d) { 
-        					d3.select(this).style('cursor', 'pointer');
+        					d3.select(this).style('cursor', 'crosshair');
                             var s = element_selected_exon(r, x(d.start), x(d.end)); 
                             
                             seq_id = "#sequence_ex_" + d.id;
@@ -1268,7 +1272,7 @@ function display_info_stripe(s_i, domain, elements, r, x){
                             d3.selectAll("#text_" + d.id)
                             	.style("fill", "red");})
         .on("mouseout", function(d) { 
-        					d3.select(this).style('cursor', 'pointer');
+        					d3.select(this).style('cursor', 'default');
         					d3.select("#element_info_exon").remove();
         					
         					seq_id = "#sequence_ex_" + d.id;
@@ -1294,7 +1298,7 @@ function display_info_stripe(s_i, domain, elements, r, x){
 			.style("stroke-width", 8)
 			.style("opacity", "0.0")
 			.on("mouseover", function(d, i) { 
-                                d3.select(this).style('cursor', 'pointer');
+                                d3.select(this).style('cursor', 'crosshair');
                                 var s = element_selected_intron(x(d.start), x(d.end));
                                 //traslazione testo pattern
                                 var tf_info_text = d3.svg.transform()
@@ -1453,12 +1457,10 @@ function draw_exons(box, exons, x_scale){
 						  d3.selectAll("#intron")
                             .style("stroke", color_intron_after)
                             .attr("pointer-events", "none");
+                          
+                          d3.select(this)
+                          .style("fill", color_exon);
 									
-						  d3.select(this)
-							.style("fill", color_exon)
-							.style("stroke", function() { return d3.rgb("#B8860B"); })
-							.style("stroke-width", 3);
-						  
 						  //coordinate della posizione del mouse al momento del "click"
 						  var coord_x = x_scale.invert(d3.event.pageX);					  
 						  if((coord_x > x_scale(d.start)) | (coord_x < x_scale(d.end))){
@@ -1469,7 +1471,8 @@ function draw_exons(box, exons, x_scale){
 						      d3.select("#expande_info")
 						      	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
 						      d3.select("#isoform")
-						      	.style("border-color", function() { return "rgb(189, 195, 199)"; }); }
+						      	.style("border-color", function() { return "rgb(189, 195, 199)"; });
+						      }
         			      }})							  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
@@ -1505,9 +1508,8 @@ function draw_exons(box, exons, x_scale){
                             .attr("pointer-events", "none");
                                     
                         d3.select(this)
-                          .style("fill", color_exon)
-                          .style("stroke", function() { return d3.rgb("#B8860B"); })
-                          .style("stroke-width", 3);
+                          .style("fill", color_exon);
+                          
                         rect_exons_stripe.append("rect")
                         	.attr("id", "exon_stripe_over")
         					.attr("width", x_scale(d.end) - x_scale(d.start) - 1)
@@ -1527,7 +1529,8 @@ function draw_exons(box, exons, x_scale){
                             d3.select("#expande_info")
 						      	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
 						    d3.select("#isoform")
-						      	.style("border-color", function() { return "rgb(189, 195, 199)"; }); }
+						      	.style("border-color", function() { return "rgb(189, 195, 199)"; });
+						    }
                     })                           
         .on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
         .on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
