@@ -831,12 +831,12 @@ function element_selected_exon(e_i, s, e){
 function connect_exon(exon, sequence){
 		
 	var xr_s = +exon.attr("x");
-	var yr_s = +exon.attr("y") + +exon.attr("height") + 2;
-	var xt_s = +sequence.attr("x") + 2;
+	var yr_s = +exon.attr("y") + +exon.attr("height") + 1;
+	var xt_s = +sequence.attr("x") + 4;
 	var yt_s = +sequence.attr("y") - 7;
 	
 	var xr_e = +exon.attr("x") + +exon.attr("width");
-	var yr_e = +exon.attr("y") + +exon.attr("height") + 2;
+	var yr_e = +exon.attr("y") + +exon.attr("height") + 1;
 	var xt_e = +sequence.attr("x") + sequence.text().length*10 + 2;
 	var yt_e = +sequence.attr("y") - 7;
 
@@ -868,12 +868,12 @@ function connect_intron(intron, sequence){
 	
 	var xr_s = +intron.attr("x1");
 	var yr_s = +intron.attr("y1");
-	var xt_s = +sequence.attr("x") + 2;
+	var xt_s = +sequence.attr("x") + 4;
 	var yt_s = +sequence.attr("y") - 7;
 	
 	var xr_e = +intron.attr("x2");
 	var yr_e = +intron.attr("y2");
-	var xt_e = +sequence.attr("x") + sequence.text().length*10 + 2;
+	var xt_e = +sequence.attr("x") + sequence.text().length*10;
 	var yt_e = +sequence.attr("y") - 7;
 	
 	var off_set_s = off_set_ex - sequence.text().length*12 + 2;
@@ -1058,10 +1058,10 @@ function display_info(s_i, domain, elements, r, x){
                             seq_id = "#sequence_ex_" + d.id;
                             //sequenza nucleotidica corrispondente
                             var t = d3.select(seq_id);
-                            t.style("fill", "red");
+                            t.style("fill", "#822222");
                             connect_exon(s, t);
                             d3.selectAll("#text_" + d.id)
-                            	.style("fill", "red");
+                            	.style("fill", "#822222");
                             })
         .on("mouseout", function(d) { 
                             d3.select(this).style('cursor', 'default');
@@ -1117,10 +1117,10 @@ function display_info(s_i, domain, elements, r, x){
                                 var s = element_selected_intron(x(d.start), x(d.end));
                                 seq_id = "#sequence_in_" + d.id;
                                 var t = d3.select(seq_id);
-                                t.style("fill", "red");
+                                t.style("fill", "#822222");
                                 connect_intron(s, t);
                                 d3.selectAll("#text_" + d.id)
-                            	.style("fill", "red"); })
+                            	.style("fill", "#822222"); })
             .on("mouseout", function(d) { 
                                 d3.select(this).style('cursor', 'default');
                                 d3.select("#element_info_intron").remove();
@@ -1267,10 +1267,10 @@ function display_info_stripe(s_i, domain, elements, r, x){
                             
                             seq_id = "#sequence_ex_" + d.id;
                             var t = d3.select(seq_id);
-                            t.style("fill", "red");
+                            t.style("fill", "#822222");
                             connect_exon(s, t);
                             d3.selectAll("#text_" + d.id)
-                            	.style("fill", "red");})
+                            	.style("fill", "#822222");})
         .on("mouseout", function(d) { 
         					d3.select(this).style('cursor', 'default');
         					d3.select("#element_info_exon").remove();
@@ -1323,10 +1323,10 @@ function display_info_stripe(s_i, domain, elements, r, x){
                                     
                                 seq_id = "#sequence_in_" + d.id;
                                 var t = d3.select(seq_id);
-                                t.style("fill", "red");
+                                t.style("fill", "#822222");
                                 connect_intron(s, t);
                                 d3.selectAll("#text_" + d.id)
-                            	.style("fill", "red"); })
+                            	.style("fill", "#822222"); })
             .on("mouseout", function(d) { 
                                 d3.select(this).style('cursor', 'default');
                                 d3.select("#element_info_intron").remove();
