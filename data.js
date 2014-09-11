@@ -4,7 +4,8 @@ var margin_isoform = {top: 100, right: 15, bottom: 15, left: 10};
 //dimensione della finestra di visualizzazione dell'isoforma
 var height = window.innerHeight + 100 - margin_isoform.top - margin_isoform.bottom;
 var width = window.innerWidth;
-// - margin_isoform.left - margin_isoform.right;
+var width_isoform = 300;
+var flag_structure = false;
 
 
 /* EXONS_STRUCTURE
@@ -96,7 +97,7 @@ function exons_structure (extract_exons, extract_regions, extract_boundary) {
 			reg = [];
 		}
 	}
-	console.log(exons);
+	//console.log(exons);
 	return exons;	
 }
 
@@ -260,7 +261,8 @@ function splice_site_structure(extract_boundaries, extract_regions){
 						
 			s_s.push({
 				"position" : boundary_prop.pos,
-				"type" : boundary_prop.t			
+				"type" : boundary_prop.t,
+				"id" : i			
 			});
 		}
 	}	
@@ -278,7 +280,7 @@ function isoform_range(reg) {
 	
 	//range per la finestra della struttura
 	var x = d3.scale.log()
-		.rangeRound([0, width - 50], .1);
+		.rangeRound([0, width - width_isoform - margin_isoform.left - margin_isoform.right], .1);
 				
 	//valorei minimo e massimo di inizio e fine dei blocchi
 	var min = d3.min(reg, function(d) { return d.start; });
@@ -314,18 +316,18 @@ function set_svg(c, w, h, p){
 }
 
 
-/* WINDOWS_INFO_SCALE
+/* WINDOWS_INFO_SCALE (DEPRECATED)
  * reg -> regioni dell'esone selezionato
  * h_info -> altezza finestra 
  * 
  * Ritorna una funzione che riscala ogni valore nel range 
  * della finestra di visualizzazione
  */
-function window_info_scale(reg, h_info){
+function window_info_scale(reg, w_info){
     
     //range per la finestra degli elementi selezionati
     y = d3.scale.log()
-              .rangeRound([0, h_info / 2], .1);
+              .rangeRound([0, w_info], .1);
                 
     //valorei minimo e massimo di inizio e fine dei blocchi
     var min_r = d3.min(reg[0], function(d) { return d.start; });
@@ -362,11 +364,13 @@ function window_info_scale(reg, h_info){
  * del gene
  */
 function legend_box(){
+	
+	var border_width = 8;
 
     //dimensioni fisse degli elementi della legenda
-    var l_w = window.innerWidth - width / 2 - margin_isoform.left - margin_isoform.right - 5;
-    var l_h = 50;
-    var off_set = 50;
+    var l_w = width_isoform - margin_isoform.right - margin_isoform.left - border_width;
+    var l_h = 250;
+    var off_set = 80;
     var off_set_y = 25;
     //distanziatore delle colonne della legenda
     //deve descrescere proporzionalmente al numero
@@ -377,9 +381,9 @@ function legend_box(){
     //vettore per il posizionamento            
     var p_s = {
     	pos : "absolute", 
-    	left : (window.innerWidth - l_w - margin_isoform.right) +  "px",
+    	left : (width - width_isoform + margin_isoform.left + border_width) +  "px",
     	right : margin_isoform.right + "px",
-    	top: "40px", 
+    	top: "110px", 
     	bottom : "10px"
     };
     
@@ -387,9 +391,9 @@ function legend_box(){
     
     //variabile per traslare gli elementi
 	var tf_element = d3.svg.transform()
-		.translate(function () { return [70, 3]; });
+		.translate(function () { return [20, 6]; });
 	var tf_text = d3.svg.transform()
-		.translate(function () { return [70, 7]; });
+		.translate(function () { return [20, 10]; });
 	
 	var color_exon = function() { return d3.rgb("#228B22"); };
 	var color_exon_stripe = function() { return 'url(#diagonalHatch)'; };
@@ -400,6 +404,7 @@ function legend_box(){
    
     s_l.attr("viewbox", function() { return "0 0" + l_w + l_h; });
  
+    
     //esoni
     s_l.append("rect")
     	.attr("x", 0)
@@ -416,7 +421,7 @@ function legend_box(){
     s_l.append("text")
     	.attr("x", off_set)
     	.attr("y", height_exon/2)
-    	.style("font-size", "12px")
+    	.style("font-size", "13px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.style("opacity", "0.0")
@@ -454,7 +459,7 @@ function legend_box(){
     s_l.append("text")
     	.attr("x", off_set)
     	.attr("y", height_exon/2 + off_set_y)
-    	.style("font-size", "12px")
+    	.style("font-size", "13px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.style("opacity", "0.0")
@@ -467,10 +472,10 @@ function legend_box(){
     
     //introni	
     s_l.append("line")
-    	.attr("x1", off_set * 4 + c)
-    	.attr("y1", 10)
-		.attr("x2", off_set * 4 + c + 40)
-		.attr("y2", 10)
+    	.attr("x1", 0)
+    	.attr("y1", off_set_y*2 + 20)
+		.attr("x2", 40)
+		.attr("y2", off_set_y*2 + 20)
     	.attr("transform", tf_element)
     	.style("stroke", color_intron)
     	.style("stroke-width", 6)
@@ -480,9 +485,9 @@ function legend_box(){
 	    .duration(750)
 	    .style("opacity", "1.0");
     s_l.append("text")
-    	.attr("x", off_set * 5 + c)
-    	.attr("y", 10)
-    	.style("font-size", "12px")
+    	.attr("x", off_set)
+    	.attr("y", off_set_y*2 + 20)
+    	.style("font-size", "13px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.style("opacity", "0.0")
@@ -495,10 +500,10 @@ function legend_box(){
     
     //splice sites
     s_l.append("line")
-    	.attr("x1", off_set * 4 + c)
-    	.attr("y1", off_set_y)
-		.attr("x2", off_set * 4 + c)
-		.attr("y2", off_set_y + 20)
+    	.attr("x1", 0)
+    	.attr("y1", off_set_y * 4)
+		.attr("x2", 0)
+		.attr("y2", off_set_y * 4 + 20)
     	.attr("transform", tf_element)
     	.style("stroke", color_intron)
     	.style("stroke-width", 2)
@@ -508,10 +513,10 @@ function legend_box(){
 	    .duration(750)
 	    .style("opacity", "1.0");
     s_l.append("line")
-    	.attr("x1", off_set * 4 + c + 10)
-    	.attr("y1", off_set_y)
-		.attr("x2", off_set * 4 + c + 10)
-		.attr("y2", off_set_y + 20)
+    	.attr("x1", 10)
+    	.attr("y1", off_set_y * 4)
+		.attr("x2", 10)
+		.attr("y2", off_set_y * 4 + 20)
     	.attr("transform", tf_element)
     	.style("stroke", color_intron)
     	.style("stroke-width", 2)
@@ -522,9 +527,9 @@ function legend_box(){
 	    .duration(750)
 	    .style("opacity", "1.0");
     s_l.append("text")
-    	.attr("x", off_set * 5 + c)
-    	.attr("y", off_set_y + 10)
-    	.style("font-size", "12px")
+    	.attr("x", off_set)
+    	.attr("y", off_set_y * 4 + 10)
+    	.style("font-size", "13px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.style("opacity", "0.0")
@@ -539,10 +544,10 @@ function legend_box(){
 		.size(10);
 	//type 3
     s_l.append("line")
-    	.attr("x1", off_set * 8 + c)
-    	.attr("y1", 4)
-		.attr("x2", off_set * 8 + c)
-		.attr("y2", 20)
+    	.attr("x1", 0)
+    	.attr("y1", off_set_y * 6)
+		.attr("x2", 0)
+		.attr("y2", off_set_y * 6 + 20)
     	.attr("transform", tf_element)
     	.style("stroke", color_intron)
     	.style("stroke-width", 2)
@@ -551,7 +556,8 @@ function legend_box(){
 	    .delay(1500)
 	    .duration(750)
 	    .style("opacity", "1.0");	
-	var position_t = off_set * 8 + c + 72;									
+	
+	var position_t = 22;									
 	s_l.append("path")
 		.attr("d", s_sy)
 		.attr("fill", "none")
@@ -559,7 +565,7 @@ function legend_box(){
 		.attr("stroke-width", "1px")
 		.style("opacity", "0.0")
 		.attr("transform", function () {
-							 return "translate(" + position_t + ",6)" + "rotate(90)";  })
+							 return "translate(" + position_t + "," + (off_set_y * 6 + 4) + ")" + "rotate(90)";  })
 		.transition()
 	    .delay(1500)
 	    .duration(750)
@@ -571,15 +577,16 @@ function legend_box(){
 		.attr("stroke-width", "1px")
 		.style("opacity", "0.0")
 		.attr("transform", function () {
-							 return "translate(" + position_t + ",22)" + "rotate(90)";  })
+							 return "translate(" + position_t + "," + (off_set_y * 6 + 27) + ")" + "rotate(90)";  })
 		.transition()
 	    .delay(1500)
 	    .duration(750)
 	    .style("opacity", "1.0");
+	    
 	s_l.append("text")
-    	.attr("x", off_set * 9)
-    	.attr("y", 10)
-    	.style("font-size", "12px")
+    	.attr("x", off_set)
+    	.attr("y", off_set_y * 6 + 10)
+    	.style("font-size", "13px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.style("opacity", "0.0")
@@ -590,11 +597,11 @@ function legend_box(){
 	    .style("opacity", "1.0"); 
 	    
 	//type 5
-	s_l.append("line")
-    	.attr("x1", off_set * 8 + c)
-    	.attr("y1", off_set_y + 5)
-		.attr("x2", off_set * 8 + c)
-		.attr("y2", off_set_y + 21)
+    s_l.append("line")
+    	.attr("x1", 0)
+    	.attr("y1", off_set_y * 8)
+		.attr("x2", 0)
+		.attr("y2", off_set_y * 8 + 20)
     	.attr("transform", tf_element)
     	.style("stroke", color_intron)
     	.style("stroke-width", 2)
@@ -603,7 +610,8 @@ function legend_box(){
 	    .delay(1500)
 	    .duration(750)
 	    .style("opacity", "1.0");	
-	var position_f = off_set * 8 + c + 68;
+	
+	position_t = 18;									
 	s_l.append("path")
 		.attr("d", s_sy)
 		.attr("fill", "none")
@@ -611,7 +619,7 @@ function legend_box(){
 		.attr("stroke-width", "1px")
 		.style("opacity", "0.0")
 		.attr("transform", function () {
-							 return "translate(" + position_f + "," + (off_set_y + 7) + ")" + "rotate(-90)";  })
+							 return "translate(" + position_t + "," + (off_set_y * 8 + 4) + ")" + "rotate(-90)";  })
 		.transition()
 	    .delay(1500)
 	    .duration(750)
@@ -623,15 +631,15 @@ function legend_box(){
 		.attr("stroke-width", "1px")
 		.style("opacity", "0.0")
 		.attr("transform", function () {
-							 return "translate(" + position_f + "," + (off_set_y + 22) + ")" + "rotate(-90)";  })
+							 return "translate(" + position_t + "," + (off_set_y * 8 + 27) + ")" + "rotate(-90)";  })
 		.transition()
 	    .delay(1500)
 	    .duration(750)
 	    .style("opacity", "1.0");
 	s_l.append("text")
-    	.attr("x", off_set * 9)
-    	.attr("y", off_set_y + 10)
-    	.style("font-size", "12px")
+    	.attr("x", off_set)
+    	.attr("y", off_set_y * 8 + 10)
+    	.style("font-size", "13px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.style("opacity", "0.0")
@@ -650,13 +658,7 @@ function legend_box(){
  */
 function remove_element_info_box(){
 	
-	d3.select("#regions_selected")
-		.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-		.remove(); 
-                        
-    d3.selectAll("#exon")
+	d3.selectAll("#exon")
     	.transition()
         .duration(750)
         .style("opacity","1.0")
@@ -677,7 +679,7 @@ function remove_element_info_box(){
         .style("opacity", "0.0")
     	.remove();
                         
-    d3.selectAll("#exon")
+    d3.selectAll("#exon_stripes")
     	.transition()
         .duration(750)
         .style("opacity","1.0")
@@ -692,6 +694,39 @@ function remove_element_info_box(){
     	.style("stroke", "black")
     	.attr("pointer-events", "yes");
     
+    var s;
+    for(s = 0; s < s_s_restruct.length; s++){
+    	d3.select("#s_s_" + s_s_restruct[s].id)
+    		.transition()
+        	.duration(750)
+        	.style("opacity","1.0")
+    		.style("stroke", "black");
+    	d3.select("#up_" + (s_s_restruct[s].id - 1))
+            .transition()
+        	.duration(750)
+        	.style("opacity","1.0")
+    		.style("stroke", "black");
+        d3.select("#down_" + (s_s_restruct[s].id - 1))
+            .transition()
+        	.duration(750)
+        	.style("opacity","1.0")
+    		.style("stroke", "black");
+    }
+	
+	d3.select("#regions_selected")
+		.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+		.remove(); 
+	
+	d3.selectAll("#exon_s")
+		.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+		.remove();
+                        
+    
+    		    
     d3.select("#title_sequence_box")
     	.transition()
     	.duration(750)
@@ -726,9 +761,38 @@ function remove_element_info_box(){
     d3.select("#expande_info")
     	.style("border-color", function() { return "rgb(189, 195, 199)"; });
 	d3.select("#isoform")
-		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });    
+		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; }); 
+   
+    flag_structure = false;
 }
 
+function buttons(){
+	
+	
+	
+	//bottone per cancellare il contenuto della finestra e riattivare
+    //la struttura del gene    
+    d3.select("body").append("button")
+        .attr("id", "clear_button")
+        .attr("class", "btn-success")
+        .style("font-size", "18px")
+        .text("Reset")
+        .style("top", "54px")
+        .style("left", function () { return (width / 2 + 280) + "px"; })
+        .style("position", "absolute")
+        .on("click", remove_element_info_box);
+        
+   
+   d3.select("body").append("button")
+        .attr("id", "zoom_button")
+        .attr("class", "btn-success")
+        .style("font-size", "18px")
+        .text("Zoom In")
+        .style("top", "54px")
+        .style("left", function () { return (width / 2 + 350) + "px"; })
+        .style("position", "absolute");
+          
+}
 
 /* SVG_INFO_BOX
  * 
@@ -741,15 +805,13 @@ function remove_element_info_box(){
 function svg_info_box(){
 	
 	//dimensioni fisse della finestra degli elementi selezionati
-    s_w = 750;
+    s_w = width - margin_isoform.left - margin_isoform.right;
     s_h = 250;
-    //la finestra viene centrata in base alla sua dimensione e alla
-    //dimensione della finestra del browser
-    var pos_w = ((window.innerWidth - s_w)/2);
+    
     //vettore per il posizionamento            
     var p_s = {
     	pos : "absolute", 
-    	left : pos_w + "px",
+    	left : "10px",
     	right : "10px",
     	top: "380px", 
     	bottom : "10px"
@@ -758,15 +820,8 @@ function svg_info_box(){
     var s_i = set_svg("expande_info", s_w, s_h, p_s);
     s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; });
     
-    //bottone per cancellare il contenuto della finestra e riattivare
-    //la struttura del gene    
-    d3.select("body").append("button")
-        .attr("id", "clear_button")
-        .text("Clear")
-        .style("top", "380px")
-        .style("left", function () { return (pos_w + s_w + 7) + "px"; })
-        .style("position", "absolute")
-        .on("click", remove_element_info_box); 
+    /*
+     
     
     d3.select("body").append("button")
         .attr("id", "show_button")
@@ -791,10 +846,124 @@ function svg_info_box(){
             	.duration(750)
             	.style("opacity", "1.0");
         }); 
+    */
     
     return s_i;
 }
 
+
+function exons_select(x, c_x, r_e){
+	
+	d3.select("#regions_selected")
+		.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+		.remove();
+	
+	d3.select("#title_sequence_box")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();    
+    d3.select("#sequence_ex")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#sequence_in")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#table_title")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#table_start")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove();
+    d3.select("#table_end")
+    	.transition()
+    	.duration(750)
+    	.style("opacity", "0.0")
+    	.remove(); 
+    	
+    d3.select("#expande_info")
+    	.style("border-color", function() { return "rgb(189, 195, 199)"; });
+	d3.select("#isoform")
+		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
+		
+	var reg_ext = [];
+	for(g = 0; g < exons_restruct.length; g++){
+		if((c_x > (exons_restruct[g].start)) & (c_x < (exons_restruct[g].end))){
+			reg_ext = reg_ext.concat(exons_restruct[g].regions);
+			r_e.append("rect")
+				.attr("id", "exon_s")
+				.attr("x", x(exons_restruct[g].start))
+        		.attr("y", 0)
+				.attr("width", function() { return x(exons_restruct[g].end) - x(exons_restruct[g].start) - 1; })
+				.attr("height", "75")
+				.attr("rx", 3)
+				.attr("ry", 3)
+				.style("fill", function() {	return d3.rgb("#228B22"); });				
+		}
+	}
+		
+	var unique = function(origArr) {
+		var newArr = [],
+        origLen = origArr.length,
+        found, x, y;
+        
+        for (x = 0; x < origLen; x++) {
+        	found = undefined;
+        	for (y = 0; y < newArr.length; y++) {
+        		if (origArr[x] === newArr[y]) {
+        			found = true;
+        			break;
+            	}
+        	}
+        	if (!found) {
+            	newArr.push(origArr[x]);
+        	}
+    	}
+    	return newArr;
+	};
+	
+	reg_ext = unique(reg_ext);
+	
+	var splice_select = [];
+	var s, e;
+	
+	for(l = 0; l < reg_ext.length; l++){
+		s = regions[reg_ext[l]].start;
+		sl = regions[reg_ext[l]].start - 1;
+		e = regions[reg_ext[l]].end;
+		em = regions[reg_ext[l]].end + 1;
+		for(h = 0; h < s_s_restruct.length; h++){
+			if((s_s_restruct[h].position == s) | (s_s_restruct[h].position == e))
+				splice_select.push(s_s_restruct[h]);
+			if((s_s_restruct[h].position == sl) | (s_s_restruct[h].position == em))
+				splice_select.push(s_s_restruct[h]);
+		}
+	}
+	
+	console.log(splice_select);
+	for(l = 0; l < splice_select.length; l++){
+		console.log(splice_select[l].id);
+		d3.select("#s_s_" + splice_select[l].id)
+			.style("stroke", "blue");
+		d3.select("#up_" + (splice_select[l].id - 1))
+            .style("stroke", "black");
+        d3.select("#down_" + (splice_select[l].id - 1))
+        	.style("stroke", "black");
+	}
+                	
+	return reg_ext;
+
+}
 
 /* ELEMENT_SELECTED_EXON
  * e_i -> elemento "esone" selezionato
@@ -807,9 +976,13 @@ function svg_info_box(){
  */
 function element_selected_exon(e_i, s, e){
     
+    //console.log(exons_restruct);
+    //var exon_check = [];
+    //for(i = 0; i < exons_restruct; i++)
+    	//if()
     //traslazione elemento
     var tf_e = d3.svg.transform()
-		.translate(function (d) { return [s, 0]; });
+		.translate(function () { return [s, 0]; });
     
     var ex = e_i.append("rect")
         .attr("id", "element_info_exon")
@@ -833,12 +1006,12 @@ function connect_exon(exon, sequence){
 	var xr_s = +exon.attr("x");
 	var yr_s = +exon.attr("y") + +exon.attr("height") + 1;
 	var xt_s = +sequence.attr("x") + 4;
-	var yt_s = +sequence.attr("y") - 7;
+	var yt_s = +sequence.attr("y") - 4;
 	
 	var xr_e = +exon.attr("x") + +exon.attr("width");
 	var yr_e = +exon.attr("y") + +exon.attr("height") + 1;
-	var xt_e = +sequence.attr("x") + sequence.text().length*10 + 2;
-	var yt_e = +sequence.attr("y") - 7;
+	var xt_e = +sequence.attr("x") + sequence.text().length*7.5 + 2;
+	var yt_e = +sequence.attr("y") - 4;
 
     point = [{ "source" : { "x" : xr_s + margin_isoform.left, "y" : yr_s}, 
     		   "target" : { "x" : xt_s + (margin_isoform.left * 20), "y" : yt_s + 135}},
@@ -869,12 +1042,12 @@ function connect_intron(intron, sequence){
 	var xr_s = +intron.attr("x1");
 	var yr_s = +intron.attr("y1");
 	var xt_s = +sequence.attr("x") + 4;
-	var yt_s = +sequence.attr("y") - 7;
+	var yt_s = +sequence.attr("y") - 4;
 	
 	var xr_e = +intron.attr("x2");
 	var yr_e = +intron.attr("y2");
-	var xt_e = +sequence.attr("x") + sequence.text().length*10;
-	var yt_e = +sequence.attr("y") - 7;
+	var xt_e = +sequence.attr("x") + sequence.text().length*7;
+	var yt_e = +sequence.attr("y") - 4;
 	
 	var off_set_s = off_set_ex - sequence.text().length*12 + 2;
 	var off_set_e = off_set_ex - sequence.text().length*10;
@@ -920,13 +1093,13 @@ function element_selected_intron(s, e){
 }
 
 
-function display_info(s_i, domain, elements, r, x){
+function display_info(s_i, x_iso, elements, r, x){
     
     //elementi estratti dalla selezione
     var exons_info = elements[0];
     var introns_info = elements[1];
-    console.log(exons_info);
-    console.log(introns_info);
+    //console.log(exons_info);
+    //console.log(introns_info);
     
     var color_exon = function() { return d3.rgb("#228B22"); };
     var color_intron = function() { return d3.rgb("black"); };
@@ -949,21 +1122,21 @@ function display_info(s_i, domain, elements, r, x){
     	
     	//traslazione esoni   
    		t_e : d3.svg.transform()
-        	.translate(function (d, i) { return [30, i * 45]; })
-        	.scale(function (d, i) { return [2.8, 1]; }),
+        	.translate(function (d, i) { return [x_iso(d.start), i * 45]; }),
+        	//.scale(function (d, i) { return [2.8, 1]; }),
         //traslazione introni
     	t_i : d3.svg.transform()
-        	.translate(function (d, i) { return [30, (i * 20) + (exons_info.length * 45)]; })
-        	.scale(function () { return [2, 1]; }),
+        	.translate(function (d, i) { return [0, (i * 20) + (exons_info.length * 45)]; }),
+        	//.scale(function () { return [2, 1]; }),
         //traslazione contenitore elementi 
     	tf_g : d3.svg.transform()
         	.translate(function (d, i) { return [15, 20]; }),
         tf_table_title : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*(1/2), 0]; }),
+        	.translate(function (d, i) { return [s_w*0.7, 0]; }),
         tf_table_start : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*(1/2), 45]; }),
+        	.translate(function (d, i) { return [s_w*0.7, 45]; }),
         tf_table_end : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*(3/4), 45]; })
+        	.translate(function (d, i) { return [s_w*0.8, 45]; })
        };
        
     var table_text = [];
@@ -976,7 +1149,7 @@ function display_info(s_i, domain, elements, r, x){
     var table_title = s_i.append("g")
         .attr("id", "table_title")
         .attr("transform", transf.tf_table_title)
-        .attr("visibility", "hidden");
+        .attr("visibility", "visible");
     
     table_title.append("text")
     	.attr("x", s_w*(1/8))
@@ -984,33 +1157,45 @@ function display_info(s_i, domain, elements, r, x){
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "blue")
-    	.text("Start");
+    	.text("Start")
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     table_title.append("text")
-    	.attr("x", s_w*(1/3) + 30)
+    	.attr("x", s_w*(2/8) - 30)
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "blue")
-    	.text("End");
+    	.text("End")
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     table_title.append("line")
     	.attr("x1", (s_w*(1/8)) - 30)
     	.attr("y1", 20)
-    	.attr("x2", (s_w*(1/8)) + 250)
+    	.attr("x2", (s_w*(2/8)) + 30)
     	.attr("y2", 20)
     	.style("stroke", "black")
-    	.style("stroke-width", "1px");
+    	.style("stroke-width", "1px")
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     	
     var table_start = s_i.append("g")
         .attr("id", "table_start")
         .attr("transform", transf.tf_table_start)
-        .attr("visibility", "hidden");
+        .attr("visibility", "visible");
     
     table_start.selectAll("text")
     	.data(table_text)
     	.enter().append("text")
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("transform", function(d, i) { 
-    						console.log(d.start.toString().length);
+    						//console.log(d.start.toString().length);
     						if(d.pattern == null)
     							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
@@ -1018,12 +1203,16 @@ function display_info(s_i, domain, elements, r, x){
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
-    	.text(function(d) { return d.start; });
+    	.text(function(d) { return d.start; })
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     
     var table_end = s_i.append("g")
         .attr("id", "table_end")
         .attr("transform", transf.tf_table_end)
-        .attr("visibility", "hidden");
+        .attr("visibility", "visible");
     
     table_end.selectAll("text")
     	.data(table_text)
@@ -1037,7 +1226,11 @@ function display_info(s_i, domain, elements, r, x){
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
-    	.text(function(d) { return d.end; });
+    	.text(function(d) { return d.end; })
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     
     var g = s_i.append("g")
         .attr("id", "regions_selected")
@@ -1045,7 +1238,7 @@ function display_info(s_i, domain, elements, r, x){
     g.selectAll("rect")
         .data(exons_info)
         .enter().append("rect")
-        .attr("width", function(d) { return domain(d.end) - domain(d.start); })
+        .attr("width", function(d) { return x_iso(d.end) - x_iso(d.start); })
         .attr("height", 40)
         .style("fill", color_exon)
         .style("opacity", "0.0")
@@ -1081,9 +1274,9 @@ function display_info(s_i, domain, elements, r, x){
     	g.selectAll("line")
     		.data(introns_info)
 			.enter().append("line")
-			.attr("x1", function(d) { return domain(d.start); })
+			.attr("x1", function(d) { return x_iso(d.start); })
 			.attr("y1", 35)
-			.attr("x2", function(d) { return domain(d.end); })
+			.attr("x2", function(d) { return x_iso(d.end); })
 			.attr("y2", 35)
 			.attr("transform", transf.t_i)
 			.style("stroke", color_intron)
@@ -1094,11 +1287,11 @@ function display_info(s_i, domain, elements, r, x){
                                 //traslazione testo pattern
                                 var tf_info_text = d3.svg.transform()
                                     .translate(function () { 
-                                        return [30, (i * 20) + (exons_info.length * 45)]; })
-                                    .scale(function () { return [2, 1]; });
+                                        return [0, (i * 20) + (exons_info.length * 45)]; });
+                                    //.scale(function () { return [2, 1]; });
                                     
                                 g.append("text")
-                                    .attr("x", domain(d.start) - 15)
+                                    .attr("x", x_iso(d.start) - 15)
                                     .attr("y", 38)
                                     .style("font-size", "10px")
                                     .attr("transform", tf_info_text)
@@ -1106,7 +1299,7 @@ function display_info(s_i, domain, elements, r, x){
                                     .style("fill", "black")
                                     .text(d.pattern.slice(0,2).toUpperCase());
                                 g.append("text")
-                                    .attr("x", domain(d.end + 10))
+                                    .attr("x", x_iso(d.end))
                                     .attr("y", 38)
                                     .style("font-size", "10px")
                                     .style("font-family", "Arial, Helvetica, sans-serif")
@@ -1148,12 +1341,12 @@ function display_info(s_i, domain, elements, r, x){
  * Visualizza gli elementi appartenenti alla selezione 
  * (per esone 'conservative').
  */     
-function display_info_stripe(s_i, domain, elements, r, x){
+function display_info_stripe(s_i, x_iso, elements, r, x){
     
     //elementi estratti dalla selezione
     var exons_info = elements[0];
     var introns_info = elements[1];
-    
+    console.log(exons_info);
     
     var color_exon = function() { return d3.rgb("#228B22"); };
     var color_intron = function() { return d3.rgb("black"); };
@@ -1162,92 +1355,116 @@ function display_info_stripe(s_i, domain, elements, r, x){
     	
     	//traslazione esoni   
    		t_e : d3.svg.transform()
-        	.translate(function (d, i) { return [30, i * 45]; })
-        	.scale(function (d, i) { return [2.8, 1]; }),
+        	.translate(function (d, i) { return [x_iso(d.start), i * 45]; }),
+        	//.scale(function (d, i) { return [2.8, 1]; }),
         //traslazione introni
     	t_i : d3.svg.transform()
-        	.translate(function (d, i) { return [30, (i * 20) + (exons_info.length * 45)]; })
-        	.scale(function () { return [2, 1]; }),
+        	.translate(function (d, i) { return [0, (i * 20) + (exons_info.length * 45)]; }),
+        	//.scale(function () { return [2, 1]; }),
         //traslazione contenitore elementi 
     	tf_g : d3.svg.transform()
         	.translate(function (d, i) { return [15, 20]; }),
-        tf_table_title : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*(1/2), 0]; }),
+         tf_table_title : d3.svg.transform()
+        	.translate(function (d, i) { return [s_w*0.7, 0]; }),
         tf_table_start : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*(1/2), 45]; }),
+        	.translate(function (d, i) { return [s_w*0.7, 45]; }),
         tf_table_end : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*(3/4), 45]; })
+        	.translate(function (d, i) { return [s_w*0.8, 45]; })
        };
     
+       
     var table_text = [];
     for(k = 0; k < exons_info.length; k++)
     	table_text.push(exons_info[k]);
     if(introns_info != null)
     	for(k = 0; k < introns_info.length; k++)
     		table_text.push(introns_info[k]);
-    
-    //head tabella   
+       
     var table_title = s_i.append("g")
         .attr("id", "table_title")
         .attr("transform", transf.tf_table_title)
-        .attr("visibility", "hidden");
+        .attr("visibility", "visible");
+    
     table_title.append("text")
     	.attr("x", s_w*(1/8))
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "blue")
-    	.text("Start");
+    	.text("Start")
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     table_title.append("text")
-    	.attr("x", s_w*(1/3) + 30)
+    	.attr("x", s_w*(2/8) - 30)
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "blue")
-    	.text("End");
+    	.text("End")
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     table_title.append("line")
     	.attr("x1", (s_w*(1/8)) - 30)
     	.attr("y1", 20)
-    	.attr("x2", (s_w*(1/8)) + 250)
+    	.attr("x2", (s_w*(2/8)) + 30)
     	.attr("y2", 20)
     	.style("stroke", "black")
-    	.style("stroke-width", "1px");
-    
-    //contenuto tabella	
+    	.style("stroke-width", "1px")
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
+    	
     var table_start = s_i.append("g")
         .attr("id", "table_start")
         .attr("transform", transf.tf_table_start)
-        .attr("visibility", "hidden"); 
+        .attr("visibility", "visible");
+    
     table_start.selectAll("text")
     	.data(table_text)
     	.enter().append("text")
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("transform", function(d, i) { 
+    						//console.log(d.start.toString().length);
     						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - 10) + "," +  i * 45 + ")";
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
-    							return "translate(" + (s_w*(1/8) - 10) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
-    	.text(function(d) { return d.start; });  
+    	.text(function(d) { return d.start; })
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
+    
     var table_end = s_i.append("g")
         .attr("id", "table_end")
         .attr("transform", transf.tf_table_end)
-        .attr("visibility", "hidden");   
+        .attr("visibility", "visible");
+    
     table_end.selectAll("text")
     	.data(table_text)
     	.enter().append("text")
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("transform", function(d, i) { 
     						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - 10) + "," +  i * 45 + ")";
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
-    							return "translate(" + (s_w*(1/8) - 10) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
-    	.text(function(d) { return d.end; });
+    	.text(function(d) { return d.end; })
+    	.style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
     
     //esoni
     var g = s_i.append("g")
@@ -1256,7 +1473,7 @@ function display_info_stripe(s_i, domain, elements, r, x){
     g.selectAll("rect")
         .data(exons_info)
         .enter().append("rect")
-        .attr("width", function(d) { return domain(d.end) - domain(d.start); })
+        .attr("width", function(d) { return x_iso(d.end) - x_iso(d.start); })
         .attr("height", 40)
         .style("fill", color_exon)
         .style("opacity", "0.0")
@@ -1289,9 +1506,9 @@ function display_info_stripe(s_i, domain, elements, r, x){
     	g.selectAll("line")
     		.data(introns_info)
 			.enter().append("line")
-			.attr("x1", function(d) { return domain(d.start); })
+			.attr("x1", function(d) { return x_iso(d.start); })
 			.attr("y1", 35)
-			.attr("x2", function(d) { return domain(d.end); })
+			.attr("x2", function(d) { return x_iso(d.end); })
 			.attr("y2", 35)
 			.attr("transform", transf.t_i)
 			.style("stroke", color_intron)
@@ -1303,18 +1520,18 @@ function display_info_stripe(s_i, domain, elements, r, x){
                                 //traslazione testo pattern
                                 var tf_info_text = d3.svg.transform()
                                     .translate(function () { 
-                                        return [30, (i * 20) + (exons_info.length * 45)]; })
-                                    .scale(function () { return [2, 1]; });
+                                        return [0, (i * 20) + (exons_info.length * 45)]; });
+                                    //.scale(function () { return [2, 1]; });
                                     
                                 g.append("text")
-                                    .attr("x", domain(d.start) - 15)
+                                    .attr("x", x_iso(d.start) - 15)
                                     .attr("y", 38)
                                     .attr("font-size", "10px")
                                     .attr("transform", tf_info_text)
                                     .style("fill", "black")
                                     .text(d.pattern.slice(0,2).toUpperCase());
                                 g.append("text")
-                                    .attr("x", domain(d.end + 10))
+                                    .attr("x", x_iso(d.end))
                                     .attr("y", 38)
                                     .attr("font-size", "10px")
                                     .attr("transform", tf_info_text)
@@ -1381,6 +1598,7 @@ function check_structure_element(regions_info, c){
     	i_i : [],
     	c_i : []
     };
+    console.log(regions_info);
     
     for(rg = 0; rg < regions_info.length; rg++)
         element.r_i.push(regions[regions_info[rg]]);
@@ -1410,9 +1628,11 @@ function check_structure_element(regions_info, c){
  */
 function draw_exons(box, exons, x_scale){
 	
+	
 	//array per gli esoni "conservative"
 	var exons_stripe = [];
 	var exons_h = 75;
+	
 	
 	//colori per gli elementi
 	var color_exon = function() { return d3.rgb("#228B22"); };
@@ -1446,34 +1666,45 @@ function draw_exons(box, exons, x_scale){
 		.style("opacity", 1.0)
 		.attr("transform",tf)
 		.on("click", function(d){ 
+					   if(flag_structure == true){
+					      d3.selectAll("#exon_s")
+					      	.remove();					
+					   }
+					   	 	   
 		               if(d.alternative == true){
 		                  d3.selectAll("#exon")
-						    .style("fill", color_exon_after)
-							.attr("pointer-events", "none");
+						    .style("fill", color_exon_after);
 						  
-						  d3.selectAll("#exon_stripe")
-							.attr("pointer-events", "none");
-							
 						  d3.selectAll("#intron")
-                            .style("stroke", color_intron_after)
-                            .attr("pointer-events", "none");
+                            .style("stroke", color_intron_after);
                           
-                          d3.select(this)
-                          .style("fill", color_exon);
-									
+                          for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#s_s_" + s_s_restruct[s].id)
+                            	.style("stroke", color_intron_after);
+                          
+                          for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#up_" + s)
+                            	.style("stroke", color_intron_after);
+                          for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#down_" + s)
+                            	.style("stroke", color_intron_after);
+                          									
 						  //coordinate della posizione del mouse al momento del "click"
-						  var coord_x = x_scale.invert(d3.event.pageX);					  
-						  if((coord_x > x_scale(d.start)) | (coord_x < x_scale(d.end))){
-						      info_structure = check_structure_element(d.regions, coord_x);  	
-						      x_info = window_info_scale(info_structure, s_h);
-						      display_info(svg_info, x_info, info_structure, rect_exons, x_scale);
-						      sequence_box(box, info_structure);
-						      d3.select("#expande_info")
-						      	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-						      d3.select("#isoform")
-						      	.style("border-color", function() { return "rgb(189, 195, 199)"; });
-						      }
-        			      }})							  		
+						  var coord_x = x_scale.invert(d3.event.pageX - 25);
+						  xc = d3.event.pageX;
+						  yc = d3.event.pageY;
+						  var regions = exons_select(x_scale, coord_x, rect_exons);					  
+						  info_structure = check_structure_element(regions, coord_x);  	
+						  display_info(svg_info, x_scale, info_structure, rect_exons, x_scale);
+						  sequence_box(box, info_structure);
+						  d3.select("#expande_info")
+						  	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
+						  d3.select("#isoform")
+						  	.style("border-color", function() { return "rgb(189, 195, 199)"; });  
+						    
+        			      }
+        			      flag_structure = true;
+        			      })							  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
 	    .transition()
@@ -1482,7 +1713,7 @@ function draw_exons(box, exons, x_scale){
 	
 	//esoni alternative = false								 
 	var rect_exons_stripe = box.append("g")
-        .attr("id", "exons")
+        .attr("id", "exons_stripes")
         .attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top/2 + ")");
     //aggiunge i blocchi "esoni alternative"
     rect_exons_stripe.selectAll("rect")
@@ -1497,46 +1728,46 @@ function draw_exons(box, exons, x_scale){
         .style("fill", 'url(#diagonalHatch)')
         .attr("transform",tf) 
         .on("click", function(d){ 
-                        d3.selectAll("#exon_stripe")
-                          .style("fill", color_exon_after)
-                          .attr("pointer-events", "none");
+        				if(flag_structure == true){
+					      d3.selectAll("#exon_s")
+					      	.remove();
+					   }
+        				
+                        
                         d3.selectAll("#exon")
-                          .style("fill", color_exon_after)
-                          .attr("pointer-events", "none");
+                          .style("fill", color_exon_after);
                         d3.selectAll("#intron")
-                            .style("stroke", color_intron_after)
-                            .attr("pointer-events", "none");
-                                    
-                        d3.select(this)
-                          .style("fill", color_exon);
+                            .style("stroke", color_intron_after);
+                            
+                        for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#s_s_" + s_s_restruct[s].id)
+                            	.style("stroke", color_intron_after);
                           
-                        rect_exons_stripe.append("rect")
-                        	.attr("id", "exon_stripe_over")
-        					.attr("width", x_scale(d.end) - x_scale(d.start) - 1)
-        					.attr("height", 75)
-        					.attr("rx", 3)
-							.attr("ry", 3)
-        					.style("fill", 'url(#diagonalHatch)')
-        					.attr("transform", "translate(" + x_scale(d.start) + ",0)");
-        		        
+                        for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#up_" + s)
+                            	.style("stroke", color_intron_after);
+                        for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#down_" + s)
+                            	.style("stroke", color_intron_after);    
+                        
         		        //coordinate della posizione del mouse al momento del "click"       
-                        var coord_x = x_scale.invert(d3.event.pageX);
-                        if((coord_x > x_scale(d.start)) | (coord_x < x_scale(d.end))){
-                        	info_structure = check_structure_element(d.regions, coord_x);  
-                            x_info = window_info_scale(info_structure, s_h);
-                            display_info_stripe(svg_info, x_info, info_structure, rect_exons_stripe, x_scale);
-                            sequence_box(box, info_structure);
-                            d3.select("#expande_info")
-						      	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-						    d3.select("#isoform")
-						      	.style("border-color", function() { return "rgb(189, 195, 199)"; });
-						    }
+                        var coord_x = x_scale.invert(d3.event.pageX - 25);
+						var regions = exons_select(x_scale, coord_x, rect_exons);
+                       	info_structure = check_structure_element(regions, coord_x);  
+                        display_info_stripe(svg_info, x_scale, info_structure, rect_exons_stripe, x_scale);
+                        sequence_box(box, info_structure);
+                        d3.select("#expande_info")
+                        	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
+						d3.select("#isoform")
+						 	.style("border-color", function() { return "rgb(189, 195, 199)"; });
+						flag_structure = true;
                     })                           
         .on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
         .on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
         .transition()
         .duration(750)
         .attr("height", exons_h);
+        
         		
 	return rect_exons;	
 }
@@ -1607,6 +1838,8 @@ function clone_svg_element(svg, obj) {
  */
 function draw_splice_sites(box, s_s, x_scale){
 	
+	console.log(s_s);
+	
 	var color_s_s = function() { return d3.rgb("black"); };
 	
 	//variabile per i simboli della tipologia 
@@ -1623,6 +1856,7 @@ function draw_splice_sites(box, s_s, x_scale){
 	splice_sites.selectAll("line")
 		.data(s_s)
 		.enter().append("line")
+		.attr("id", function(d) { return "s_s_" + d.id; })
 		.attr("x1", function(d) { if(d.position != null) 
 									return x_scale(d.position); })
 		.attr("y1", -30)
@@ -1653,7 +1887,7 @@ function draw_splice_sites(box, s_s, x_scale){
 	triangle_up.selectAll("path")
 		.data(s_s)
 		.enter().append("path")
-		.attr("id", function(d, i) { return "up" + i; })
+		.attr("id", function(d, i) { return "up_" + i; })
 		.attr("d", s_sy)
 		.attr("fill", "none")
 		.attr("stroke","black")
@@ -1677,7 +1911,7 @@ function draw_splice_sites(box, s_s, x_scale){
 	triangle_down.selectAll("path")
 		.data(s_s)
 		.enter().append("path")
-		.attr("id", function(d, i) { return "up" + i; })
+		.attr("id", function(d, i) { return "down_" + i; })
 		.attr("d", s_sy)
 		.attr("fill", "none")
 		.attr("stroke","black")
@@ -1714,7 +1948,7 @@ function draw_splice_sites(box, s_s, x_scale){
  * 
  * Visualizza le sequenze nucleotidiche degli elementi selezionati
  */
-function sequence_box(isoform_box, seq_info){
+function sequence_box(s_box, seq_info){
 	
 	var color_title = function() { return d3.rgb("blue"); };
 	var color_sequence = function() { return d3.rgb("black"); };
@@ -1723,12 +1957,12 @@ function sequence_box(isoform_box, seq_info){
 	//da visualizzare
 	var position = {
 		y_pos : 190,
-		x_pos_ex : 250,
-		x_pos_exx : 350,
+		x_pos_ex : 210,
+		x_pos_exx : 165,
 		x_pos_in : 150
 	};
     
-    isoform_box.append("text")
+    s_box.append("text")
         .attr("id", "title_sequence_box")
         .attr("x", 0)
         .attr("y", 30)
@@ -1746,17 +1980,17 @@ function sequence_box(isoform_box, seq_info){
     if(seq_info[0].length > 1)   	
 		off_set_ex = seq_info[0].length * position.x_pos_ex;
 	else
-		off_set_ex = seq_info[0].length * position.x_pos_exx;
+		off_set_ex = 2 * position.x_pos_exx;
 	if(seq_info[1] != null)
 		var off_set_in = seq_info[1].length * position.x_pos_in;
 	
 	//box per le sequenze degli esoni
-	var sequence_ex = isoform_box.append("g")
+	var sequence_ex = s_box.append("g")
 		.attr("id", "sequence_ex")
 		.attr("transform", "translate(" + (margin_isoform.left * 20) + "," + position.y_pos + ")");
     
     //box per le sequenze degli introni
-    var sequence_in = isoform_box.append("g")
+    var sequence_in = s_box.append("g")
         .attr("id", "sequence_in")
         .attr("transform", "translate(" + off_set_ex + "," + position.y_pos + ")");
    
@@ -1767,11 +2001,11 @@ function sequence_box(isoform_box, seq_info){
         .attr("x", function (d, i) { 
         			var canvas = document.createElement('canvas');
 					var ctx = canvas.getContext("2d");
-					ctx.font = "20px Arial";        
+					ctx.font = "15px Arial";        
 					var width = ctx.measureText(d.sequence).width;
         			return (i * width); })
         .attr("y", 30)
-        .style("font-size", "16px")
+        .style("font-size", "12px")
         .style("font-family", "Arial, Helvetica, sans-serif")
         .style("fill", color_sequence)
         .style("opacity", "0.0")
@@ -1789,11 +2023,11 @@ function sequence_box(isoform_box, seq_info){
             .attr("x", function (d, i) {
             			var canvas = document.createElement('canvas');
 						var ctx = canvas.getContext("2d");
-						ctx.font = "23.5px Arial";        
+						ctx.font = "18px Arial";        
 						var width = ctx.measureText(d.prefix + d.suffix).width;
         				return (i * width); })
             .attr("y", 30)
-            .style("font-size", "16px")
+            .style("font-size", "12px")
             .style("font-family", "Arial, Helvetica, sans-serif")
             .style("fill", color_sequence)
             .style("opacity", "0.0")
@@ -1862,25 +2096,26 @@ function change_gene(){
 function select_gene(){
       
     var s_g = d3.select("body").append("g");
-    s_g.style("top", "15px")
-       .style("left", function () { return margin_isoform.left + "px"; })
+    s_g.style("top", "50px")
+       .style("left", function () { return (width / 2 + 20) + "px"; })
        .style("position", "absolute");
-    s_g.html(function() { return '<select><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
+    s_g.html(function() { return '<select class="btn-success"><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
     							   '<option value="ATP6AP1example2">ATP6AP1_ex2</option>' +
                                    '<option value="ATP6AP1example3">ATP6AP1_ex3</option>' + 
                                    '</select>'; }); 
     
-    s = d3.select("select")
+    selection = d3.select("select")
             .on("change", change_gene);
     
-    s.property("value", "ATP6AP1example2");
+    selection.property("value", "ATP6AP1example2");
     
     //texture esoni alternative
     pattern_exons();
     
+    
     //dimensioni e posizione finestra della struttura
     //del gene
-    var height_isoform = 250;
+    height_isoform = 250;
     var pos_box = {
     	pos: "absolute",
     	left : "10px",
@@ -1888,13 +2123,30 @@ function select_gene(){
     	top : "110px",
     	bottom : "10px"
     };
-    svg_box = set_svg("isoform", width - margin_isoform.right - margin_isoform.left, height_isoform, pos_box);
+    svg_box = set_svg("isoform", width - width_isoform, height_isoform, pos_box);  
+    
+   
+    // create the zoom listener
+	var zoomListener = d3.behavior.zoom()
+		//.center([xc, yc])
+  		.scaleExtent([0.1, 1.5])
+  		.size([width - width_isoform, height_isoform])
+  		.on("zoom", zoomHandler);
+
+	// function for handling zoom event
+	function zoomHandler() {
+  		svg_box.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+  	}
+  	
+    zoomListener(svg_box);
+    
         
     init();   
     
     svg_info = svg_info_box();  
     
-    legend_box();                         
+    legend_box();  
+    buttons();                       
 }
 
 
@@ -2034,7 +2286,7 @@ function init(){
     
     //stringa per il pathname del file json
     var string = "json/";
-    string = string.concat(s.property("value"), ".json");
+    string = string.concat(selection.property("value"), ".json");
     
     //console.log(string);
     //carica i dati contenuti nel file json e richiama le funzioni per disegnare la struttura
@@ -2051,6 +2303,7 @@ function init(){
 	   //regioni
 	   x = isoform_range(isoform.regions);
 	   regions = regions_scaled(isoform.regions);
+	   console.log(regions);
 	
 	   display_gene();
 	
