@@ -1175,6 +1175,8 @@ function display_info(s_i, x_iso, elements, r, x){
     //elementi estratti dalla selezione
     var exons_info = elements[0];
     var introns_info = elements[1];
+    var start_table = s_w - width_isoform + margin_isoform.left + margin_isoform.right;
+    var column_start = 50, column_end = 200;
     //console.log(exons_info);
     //console.log(introns_info);
     
@@ -1197,11 +1199,11 @@ function display_info(s_i, x_iso, elements, r, x){
     	tf_g : d3.svg.transform()
         	.translate(function (d, i) { return [15, 20]; }),
         tf_table_title : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*0.7, 0]; }),
+        	.translate(function (d, i) { return [start_table, 0]; }),
         tf_table_start : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*0.7, 45]; }),
+        	.translate(function (d, i) { return [start_table, 45]; }),
         tf_table_end : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*0.8, 45]; })
+        	.translate(function (d, i) { return [start_table, 45]; })
        };
        
     var table_text = [];
@@ -1217,7 +1219,7 @@ function display_info(s_i, x_iso, elements, r, x){
         .attr("visibility", "visible");
     
     table_title.append("text")
-    	.attr("x", s_w*(1/8))
+    	.attr("x", column_start)
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
@@ -1227,8 +1229,9 @@ function display_info(s_i, x_iso, elements, r, x){
         .transition()
         .duration(750)
         .style("opacity","1.0");
+    
     table_title.append("text")
-    	.attr("x", s_w*(2/8) - 30)
+    	.attr("x", column_end)
     	.attr("y", 15)
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
@@ -1239,9 +1242,9 @@ function display_info(s_i, x_iso, elements, r, x){
         .duration(750)
         .style("opacity","1.0");
     table_title.append("line")
-    	.attr("x1", (s_w*(1/8)) - 30)
+    	.attr("x1", 20)
     	.attr("y1", 20)
-    	.attr("x2", (s_w*(2/8)) + 30)
+    	.attr("x2", 260)
     	.attr("y2", 20)
     	.style("stroke", "black")
     	.style("stroke-width", "1px")
@@ -1262,9 +1265,9 @@ function display_info(s_i, x_iso, elements, r, x){
     	.attr("transform", function(d, i) { 
     						//console.log(d.start.toString().length);
     						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
+    							return "translate(" + (column_start - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+    							return "translate(" + (column_start - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
@@ -1289,9 +1292,9 @@ function display_info(s_i, x_iso, elements, r, x){
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("transform", function(d, i) { 
     						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
+    							return "translate(" + (column_end - (d.start.toString().length)) + "," +  i * 45 + ")";
     						else
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+    							return "translate(" + (column_end - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
     	.style("font-size", "16px")
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
@@ -1419,7 +1422,8 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
     //elementi estratti dalla selezione
     var exons_info = elements[0];
     var introns_info = elements[1];
-    console.log(exons_info);
+    var start_table = s_w - width_isoform + margin_isoform.left + margin_isoform.right;
+    var column_start = 50, column_end = 200;
     
     var color_exon = function() { return d3.rgb("#228B22"); };
     var color_intron = function() { return d3.rgb("black"); };
@@ -1437,21 +1441,20 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
         //traslazione contenitore elementi 
     	tf_g : d3.svg.transform()
         	.translate(function (d, i) { return [15, 20]; }),
-         tf_table_title : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*0.7, 0]; }),
+           tf_table_title : d3.svg.transform()
+            .translate(function (d, i) { return [start_table, 0]; }),
         tf_table_start : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*0.7, 45]; }),
+            .translate(function (d, i) { return [start_table, 45]; }),
         tf_table_end : d3.svg.transform()
-        	.translate(function (d, i) { return [s_w*0.8, 45]; })
+            .translate(function (d, i) { return [start_table, 45]; })
        };
-    
        
     var table_text = [];
     for(k = 0; k < exons_info.length; k++)
-    	table_text.push(exons_info[k]);
+        table_text.push(exons_info[k]);
     if(introns_info != null)
-    	for(k = 0; k < introns_info.length; k++)
-    		table_text.push(introns_info[k]);
+        for(k = 0; k < introns_info.length; k++)
+            table_text.push(introns_info[k]);
        
     var table_title = s_i.append("g")
         .attr("id", "table_title")
@@ -1459,59 +1462,64 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
         .attr("visibility", "visible");
     
     table_title.append("text")
-    	.attr("x", s_w*(1/8))
-    	.attr("y", 15)
-    	.style("font-size", "16px")
-    	.style("font-family", "Arial, Helvetica, sans-serif")
-    	.style("fill", "blue")
-    	.text("Start")
-    	.style("opacity", "0.0")
+        .attr("x", column_start)
+        .attr("y", 15)
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "blue")
+        .text("Start")
+        .style("opacity", "0.0")
         .transition()
         .duration(750)
         .style("opacity","1.0");
+    
     table_title.append("text")
-    	.attr("x", s_w*(2/8) - 30)
-    	.attr("y", 15)
-    	.style("font-size", "16px")
-    	.style("font-family", "Arial, Helvetica, sans-serif")
-    	.style("fill", "blue")
-    	.text("End")
-    	.style("opacity", "0.0")
+        .attr("x", column_end)
+        .attr("y", 15)
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "blue")
+        .text("End")
+        .style("opacity", "0.0")
         .transition()
         .duration(750)
         .style("opacity","1.0");
     table_title.append("line")
-    	.attr("x1", (s_w*(1/8)) - 30)
-    	.attr("y1", 20)
-    	.attr("x2", (s_w*(2/8)) + 30)
-    	.attr("y2", 20)
-    	.style("stroke", "black")
-    	.style("stroke-width", "1px")
-    	.style("opacity", "0.0")
+        .attr("x1", 20)
+        .attr("y1", 20)
+        .attr("x2", 260)
+        .attr("y2", 20)
+        .style("stroke", "black")
+        .style("stroke-width", "1px")
+        .style("opacity", "0.0")
         .transition()
         .duration(750)
         .style("opacity","1.0");
-    	
+        
     var table_start = s_i.append("g")
         .attr("id", "table_start")
         .attr("transform", transf.tf_table_start)
         .attr("visibility", "visible");
     
     table_start.selectAll("text")
-    	.data(table_text)
-    	.enter().append("text")
-    	.attr("id", function(d) { return "text_" + d.id; })
-    	.attr("transform", function(d, i) { 
-    						//console.log(d.start.toString().length);
-    						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
-    						else
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
-    	.style("font-size", "16px")
-    	.style("font-family", "Arial, Helvetica, sans-serif")
-    	.style("fill", "black")
-    	.text(function(d) { return d.start; })
-    	.style("opacity", "0.0")
+        .data(table_text)
+        .enter().append("text")
+        .attr("id", function(d) { return "text_" + d.id; })
+        .attr("transform", function(d, i) { 
+                            //console.log(d.start.toString().length);
+                            if(d.pattern == null)
+                                return "translate(" + (column_start - (d.start.toString().length)) + "," +  i * 45 + ")";
+                            else
+                                return "translate(" + (column_start - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "black")
+        .text(function(d) { 
+                if(d.pattern == null)
+                    return original_regions[d.id].start;
+                else
+                    return d.start; })
+        .style("opacity", "0.0")
         .transition()
         .duration(750)
         .style("opacity","1.0");
@@ -1522,19 +1530,23 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
         .attr("visibility", "visible");
     
     table_end.selectAll("text")
-    	.data(table_text)
-    	.enter().append("text")
-    	.attr("id", function(d) { return "text_" + d.id; })
-    	.attr("transform", function(d, i) { 
-    						if(d.pattern == null)
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," +  i * 45 + ")";
-    						else
-    							return "translate(" + (s_w*(1/8) - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
-    	.style("font-size", "16px")
-    	.style("font-family", "Arial, Helvetica, sans-serif")
-    	.style("fill", "black")
-    	.text(function(d) { return d.end; })
-    	.style("opacity", "0.0")
+        .data(table_text)
+        .enter().append("text")
+        .attr("id", function(d) { return "text_" + d.id; })
+        .attr("transform", function(d, i) { 
+                            if(d.pattern == null)
+                                return "translate(" + (column_end - (d.start.toString().length)) + "," +  i * 45 + ")";
+                            else
+                                return "translate(" + (column_end - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 35)) + ")"; })
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "black")
+        .text(function(d) { 
+                if(d.pattern == null)
+                    return original_regions[d.id].end;
+                else
+                    return d.end; })
+        .style("opacity", "0.0")
         .transition()
         .duration(750)
         .style("opacity","1.0");
@@ -2203,7 +2215,7 @@ function select_gene(){
     //texture esoni alternative
     pattern_exons();
     
-    
+    console.log(width - width_isoform);
     //dimensioni e posizione finestra della struttura
     //del gene
     height_isoform = 250;
