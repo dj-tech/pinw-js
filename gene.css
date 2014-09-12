@@ -44,7 +44,7 @@
 .link {
     fill: none;
     stroke: #C0C0C0;
-    stroke-width: 2px;
+    stroke-width : 2px;
     shape-rendering: geometricPrecision;
 }
 /*            
