@@ -682,6 +682,8 @@ function remove_element_info_box(){
 	//durata animazione
 	var t = 750;
 	
+	d3.selectAll("#cross_pos").remove();
+	
 	d3.selectAll("#exon")
     	.transition()
         .duration(750)
@@ -988,6 +990,7 @@ function exons_select(x, c_x, r_e){
 			reg_ext = reg_ext.concat(exons_restruct[g].regions);	
 		}
 	}
+	console.log(reg_ext);
 	
 	reg_ext = remove_duplicate(reg_ext);
 	
@@ -1578,109 +1581,7 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
             .translate(function (d, i) { return [start_table, 45]; })
        };
     
-    //tabella contenente le informazioni di "start" e "end" degli elementi selezionati   
-    var table_text = [];
-    for(k = 0; k < exons_info.length; k++)
-        table_text.push(exons_info[k]);
-    if(introns_info != null)
-        for(k = 0; k < introns_info.length; k++)
-            table_text.push(introns_info[k]);
-       
-    var table_title = s_i.append("g")
-        .attr("id", "table_title")
-        .attr("transform", transf.tf_table_title)
-        .attr("visibility", "visible");
     
-    table_title.append("text")
-        .attr("x", column_start)
-        .attr("y", 15)
-        .style("font-size", "16px")
-        .style("font-family", "Arial, Helvetica, sans-serif")
-        .style("fill", "blue")
-        .text("Start")
-        .style("opacity", "0.0")
-        .transition()
-        .duration(750)
-        .style("opacity","1.0");
-    
-    table_title.append("text")
-        .attr("x", column_end)
-        .attr("y", 15)
-        .style("font-size", "16px")
-        .style("font-family", "Arial, Helvetica, sans-serif")
-        .style("fill", "blue")
-        .text("End")
-        .style("opacity", "0.0")
-        .transition()
-        .duration(750)
-        .style("opacity","1.0");
-    table_title.append("line")
-        .attr("x1", 20)
-        .attr("y1", 20)
-        .attr("x2", 260)
-        .attr("y2", 20)
-        .style("stroke", "black")
-        .style("stroke-width", "1px")
-        .style("opacity", "0.0")
-        .transition()
-        .duration(750)
-        .style("opacity","1.0");
-        
-    var table_start = s_i.append("g")
-        .attr("id", "table_start")
-        .attr("transform", transf.tf_table_start)
-        .attr("visibility", "visible");
-    
-    table_start.selectAll("text")
-        .data(table_text)
-        .enter().append("text")
-        .attr("id", function(d) { return "text_" + d.id; })
-        .attr("transform", function(d, i) { 
-                            if(d.pattern == null)
-                                return "translate(" + (column_start - (d.start.toString().length)) + "," +  i * 45 + ")";
-                            else
-                                return "translate(" + (column_start - (d.start.toString().length)) + "," + ((i * 20) + 
-                                (exons_info.length * 35)) + ")"; })
-        .style("font-size", "16px")
-        .style("font-family", "Arial, Helvetica, sans-serif")
-        .style("fill", "black")
-        .text(function(d) { 
-                if(d.pattern == null)
-                    return original_regions[d.id].start;
-                else
-                    return d.start; })
-        .style("opacity", "0.0")
-        .transition()
-        .duration(750)
-        .style("opacity","1.0");
-    
-    var table_end = s_i.append("g")
-        .attr("id", "table_end")
-        .attr("transform", transf.tf_table_end)
-        .attr("visibility", "visible");
-    
-    table_end.selectAll("text")
-        .data(table_text)
-        .enter().append("text")
-        .attr("id", function(d) { return "text_" + d.id; })
-        .attr("transform", function(d, i) { 
-                            if(d.pattern == null)
-                                return "translate(" + (column_end - (d.start.toString().length)) + "," +  i * 45 + ")";
-                            else
-                                return "translate(" + (column_end - (d.start.toString().length)) + "," + ((i * 20) + 
-                                (exons_info.length * 35)) + ")"; })
-        .style("font-size", "16px")
-        .style("font-family", "Arial, Helvetica, sans-serif")
-        .style("fill", "black")
-        .text(function(d) { 
-                if(d.pattern == null)
-                    return original_regions[d.id].end;
-                else
-                    return d.end; })
-        .style("opacity", "0.0")
-        .transition()
-        .duration(750)
-        .style("opacity","1.0");
     
     //esoni
     var g = s_i.append("g")
@@ -1741,6 +1642,7 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
     	g.selectAll("line")
     		.data(introns_info)
 			.enter().append("line")
+			.attr("id", function(d) { return "i_e_" + d.id; })
 			.attr("x1", function(d) { return x_iso(d.start); })
 			.attr("y1", 35)
 			.attr("x2", function(d) { return x_iso(d.end); })
@@ -1811,6 +1713,121 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
         	.duration(750)
         	.style("opacity","1.0");   
 	}     
+	
+	//tabella contenente le informazioni di "start" e "end" degli elementi selezionati   
+    var table_text = [];
+    for(k = 0; k < exons_info.length; k++)
+        table_text.push(exons_info[k]);
+    if(introns_info != null)
+        for(k = 0; k < introns_info.length; k++)
+            table_text.push(introns_info[k]);
+       
+    var table_title = s_i.append("g")
+        .attr("id", "table_title")
+        .attr("transform", transf.tf_table_title)
+        .attr("visibility", "visible");
+    
+    table_title.append("text")
+        .attr("x", column_start)
+        .attr("y", 15)
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "blue")
+        .text("Start")
+        .style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
+    
+    table_title.append("text")
+        .attr("x", column_end)
+        .attr("y", 15)
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "blue")
+        .text("End")
+        .style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
+    table_title.append("line")
+        .attr("x1", 20)
+        .attr("y1", 20)
+        .attr("x2", 260)
+        .attr("y2", 20)
+        .style("stroke", "black")
+        .style("stroke-width", "1px")
+        .style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
+        
+    var table_start = s_i.append("g")
+        .attr("id", "table_start")
+        .attr("transform", transf.tf_table_start)
+        .attr("visibility", "visible");
+    
+    table_start.selectAll("text")
+        .data(table_text)
+        .enter().append("text")
+        .attr("id", function(d) { return "text_" + d.id; })
+        .attr("id", function(d) { return "text_" + d.id; })
+    	.attr("x", function(d,i) { return (column_start - (d.start.toString().length)); })
+    	.attr("y", 15)
+    	.attr("transform", function(d, i) { 
+    						
+    						if(d.pattern == null)
+    							return "translate(0," +  i * 45 + ")";
+    						else{
+    							console.log(d3.select("#i_e_" + d.id).attr("transform"));
+    							//return "translate(" + (column_start - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 28)) + ")";
+    							return d3.select("#i_e_" + d.id).attr("transform"); 
+    						}})
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "black")
+        .text(function(d) { 
+                if(d.pattern == null)
+                    return original_regions[d.id].start;
+                else
+                    return d.start; })
+        .style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
+    
+    var table_end = s_i.append("g")
+        .attr("id", "table_end")
+        .attr("transform", transf.tf_table_end)
+        .attr("visibility", "visible");
+    
+    table_end.selectAll("text")
+        .data(table_text)
+        .enter().append("text")
+        .attr("id", function(d) { return "text_" + d.id; })
+        .attr("x", function(d,i) { return (column_end - (d.start.toString().length)); })
+    	.attr("y", 15)
+    	.attr("transform", function(d, i) { 
+    						
+    						if(d.pattern == null)
+    							return "translate(0," +  i * 45 + ")";
+    						else{
+    							console.log(d3.select("#i_e_" + d.id).attr("transform"));
+    							//return "translate(" + (column_start - (d.start.toString().length)) + "," + ((i * 20) + (exons_info.length * 28)) + ")";
+    							return d3.select("#i_e_" + d.id).attr("transform"); 
+    						}})
+        .style("font-size", "16px")
+        .style("font-family", "Arial, Helvetica, sans-serif")
+        .style("fill", "black")
+        .text(function(d) { 
+                if(d.pattern == null)
+                    return original_regions[d.id].end;
+                else
+                    return d.end; })
+        .style("opacity", "0.0")
+        .transition()
+        .duration(750)
+        .style("opacity","1.0");
 }
 
 
@@ -1845,7 +1862,8 @@ function pattern_exons(){
  * alle coordinate della selezione. Restituisce una struttura di array.
  */
 function check_structure_element(regions_info, c, r_e){
-    
+	
+    var flag;
     //elementi che verranno estratti dalla selezione 
     var element = {
     	r_i : [],
