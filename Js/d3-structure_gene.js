@@ -1,19 +1,23 @@
 
 //margini
 var margin_isoform = {top: 100, right: 15, bottom: 15, left: 10};
+
 //dimensione della finestra di visualizzazione dell'isoforma
 var height = window.innerHeight + 100 - margin_isoform.top - margin_isoform.bottom;
 var width = window.innerWidth;
 var width_isoform = 300;
 var height_isoform = 250;
+
 //dimensioni fisse della finestra degli elementi selezionati (struttura espansa)
 var s_w = width - margin_isoform.left - margin_isoform.right;
 var s_h = 250;
+
 //flag per segnalare l'attivazione della struttura, dello zoom e 
 //della presenza della sequenza nucleotidica
 var flag_structure = false, flag_zoom = false, flag_sequence = false, flag_exon = true;
+
 //FUNZIONI AUSILIARIE
-//rimuove i duplicati degli indici delle regioni dall'array ricostruito
+//rimuove i duplicati da un array (indipendente dal tipo di elemento)
 var remove_duplicate = function(a) {
 	
 	var new_a = [], a_l = a.length, found, x, y;
@@ -41,7 +45,7 @@ var remove_duplicate = function(a) {
 //funzione per traslare e scalare la struttura genica
 //in base alle coordinate del mouse 
 function zoom() {
- 	svg_box.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+ 	svg_isoform.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
  }
 
 
@@ -89,6 +93,7 @@ function exons_structure (extract_exons, extract_regions, extract_boundary) {
 			t_r_r : region_prop.r_r.type
 		};
 		
+		//condizioni estratte da "propostaJSON2.txt"
 		//esclude le regioni non codificanti
 		if ((boundary_prop.t_r_l == "codifying") & (boundary_prop.t_r_l != "unknow")) {
 			start_exon = region_prop.r_l.start;
@@ -110,6 +115,7 @@ function exons_structure (extract_exons, extract_regions, extract_boundary) {
 				//anche l'esone è "alternative" CHIEDERE!!
 				if(extract_regions[j].alternative == true)
 					exon_prop.flag_alt = true;
+				
 			}
 			
 			if (exon_prop.flag_seq == true)
@@ -180,6 +186,7 @@ function introns_structure(extract_introns, extract_regions, extract_boundary){
 			a_r_r : region_prop.r_r.alternative
 		};
 		
+		//condizioni estratte da "propostaJSON2.txt"
 		//esclude le regioni non codificanti
 		if((boundary_prop.t_r_l != "unknow") & (boundary_prop.t_r_r != "unknow")){
 			if((extract_boundary[intron_prop.l_b].type ==  "5") | (extract_boundary[intron_prop.l_b].type == "both")){
@@ -269,6 +276,7 @@ function splice_site_structure(extract_boundaries, extract_regions){
 		t : ""
 	};
 	
+	//condizioni estratte da "propostaJSON2.txt"
 	for(i = 0; i < l; i++){
 		if(extract_boundaries[i].first == -1){
 			boundary_prop.pos = null;
@@ -294,11 +302,12 @@ function splice_site_structure(extract_boundaries, extract_regions){
 }
 
 
-/* ISOFORM_SCALE
+/* ISOFORM_RANGE
  * reg -> dati delle regioni estratti dal file json
  * 
- * Definisce un range per trasformare la posizione dei blocchi nell'isoforma
- * in coordinate della finestra di visualizzazione
+ * Definisce un range per trasformare la posizione dei blocchi
+ * (start & end) nell'isoforma in coordinate della finestra 
+ * di visualizzazione
  */
 function isoform_range(reg) {
 	
@@ -339,14 +348,17 @@ function set_svg(c, w, h, p){
 }
 
 
-/* WINDOWS_INFO_SCALE (DEPRECATED)
+/* EXPANDE_BOX_RANGE (DEPRECATED)
  * reg -> regioni dell'esone selezionato
  * h_info -> altezza finestra 
  * 
  * Ritorna una funzione che riscala ogni valore nel range 
- * della finestra di visualizzazione
+ * della finestra di visualizzazione.
+ * Non viene utilizzata nelle versione più recente perchè
+ * la finestra della struttura espansa ha la stessa dimensione
+ * della finestra dell'isoforma
  */
-function window_info_scale(reg, w_info){
+function expande_box_range(reg, w_info){
 	
 	//range per la finestra degli elementi selezionati
     y = d3.scale.log()
@@ -390,16 +402,18 @@ function legend_box(){
 	
 	//bordo della finestra SVG
 	var border_width = 8;
+	
     //dimensioni fisse degli elementi della legenda
     var l_w = width_isoform - margin_isoform.right - margin_isoform.left - border_width;
     var l_h = 250;
     var off_set = 80;
     var off_set_y = 35;
     var height_exon = 18;
+    
     //durata e ritardo animazione
     var t = 750, d = 1500;
     
-    //vettore per il posizionamento            
+    //struttura per il posizionamento            
     var p_s = {
     	pos : "absolute", 
     	left : (width - width_isoform + margin_isoform.left + border_width) +  "px",
@@ -419,11 +433,14 @@ function legend_box(){
     var color_intron = function() { return d3.rgb("black"); };
     var color_splice_site = function() { return d3.rgb("black"); };
                                         
+    //dichiarazione della finestra SVG
     var s_l = set_svg("legend", l_w, l_h, p_s);
    
+    //"viewbox" rimappa le coordinate della finestra all'interno dei 
+    //valori specificati dal risultato della funzione
     s_l.attr("viewbox", function() { return "0 0" + l_w + l_h; });
 
-    //esoni
+    //tipologia esoni
     s_l.append("rect")
     	.attr("x", 0)
     	.attr("y", 0)
@@ -488,7 +505,7 @@ function legend_box(){
 	    .duration(t)
 	    .style("opacity", "1.0");
     
-    //introni	
+    //tipologia introni	
     s_l.append("line")
     	.attr("x1", 0)
     	.attr("y1", off_set_y*2 + 20)
@@ -515,11 +532,12 @@ function legend_box(){
 	    .delay(d)
 	    .duration(t)
 	    .style("opacity", "1.0");
-     
+    
+    //tipologia splice sites 
     var s_sy = d3.svg.symbol()
 		.type('triangle-up')
 		.size(10);
-	//type 3'
+	//tipo 3'
     s_l.append("line")
     	.attr("x1", 0)
     	.attr("y1", off_set_y * 3.8)
@@ -573,7 +591,7 @@ function legend_box(){
 	    .duration(t)
 	    .style("opacity", "1.0"); 
 	    
-	//type 5'
+	//tipo 5'
     s_l.append("line")
     	.attr("x1", 0)
     	.attr("y1", off_set_y * 5)
@@ -628,20 +646,23 @@ function legend_box(){
 }
 
 
-/* REMOVE_ELEMENT_INFO_BOX
+/* REMOVE_ELEMENT_EXPANDE_BOX
  * 
  * Funzione eseguita alla pressione del tasto "Reset" o alla
  * selezione di un nuovo gene. Elimina tutti gli elementi nella
  * finestra della struttura espansa. Ripristina le dimensioni
- * originali della struttura e disabilita lo zoom.
+ * originali della struttura e tutte le sue funzioni, disabilita
+ * lo zoom.
  */
-function remove_element_info_box(){
+function remove_element_expande_box(){
 	
 	//durata animazione
 	var t = 750;
 	
+	//rimozione segnalatore click del mouse
 	d3.selectAll("#cross_pos").remove();
 	
+	//ripristino esoni "conservative"
 	d3.selectAll("#exon")
     	.transition()
         .duration(750)
@@ -649,7 +670,8 @@ function remove_element_info_box(){
     	.attr("pointer-events", "yes")
       	.style("stroke-width", 0)
       	.style("fill", function() { return d3.rgb("#228B22"); });
-                                   
+    
+    //ripristino esoni "alternative"                               
     d3.selectAll("#exon_stripe")
     	.transition()
         .duration(t)
@@ -661,8 +683,7 @@ function remove_element_info_box(){
     	.transition()
         .duration(t)
         .style("opacity", "0.0")
-    	.remove();
-                        
+    	.remove();                    
     d3.selectAll("#exon_stripes")
     	.transition()
         .duration(t)
@@ -670,7 +691,8 @@ function remove_element_info_box(){
     	.attr("pointer-events", "yes")
         .style("stroke-width", 0)
         .style("fill", function() { return d3.rgb("#228B22"); });
-                        
+    
+    //ripristino introni                    
     d3.selectAll("#intron")
     	.transition()
         .duration(t)
@@ -678,6 +700,7 @@ function remove_element_info_box(){
     	.style("stroke", "black")
     	.attr("pointer-events", "yes");
     
+    //ripristino splice sites
     var s;
     for(s = 0; s < s_s_restruct.length; s++){
     	d3.select("#s_s_" + s_s_restruct[s].id)
@@ -698,24 +721,26 @@ function remove_element_info_box(){
     		.style("stroke", "black");
     }
 	
+	//rimizione struttura espansa
 	d3.select("#regions_selected")
 		.transition()
     	.duration(t)
     	.style("opacity", "0.0")
 		.remove(); 
 	
+	//rimozione elementi aggiunti
 	d3.selectAll("#exon_s")
 		.transition()
     	.duration(t)
     	.style("opacity", "0.0")
-		.remove();
-		
+		.remove();	
 	d3.selectAll("#intron_s")
 		.transition()
     	.duration(t)
     	.style("opacity", "0.0")
 		.remove();
-                        		    
+    
+    //rimozione sequenza nucleotidica                    		    
     d3.select("#title_sequence")
     	.transition()
     	.duration(t)
@@ -746,8 +771,9 @@ function remove_element_info_box(){
     	.duration(t)
     	.style("opacity", "0.0")
     	.remove(); 
-    	
-    d3.select("#expande_info")
+    
+    //ripristino struttura	
+    d3.select("#expande_box")
     	.style("border-color", function() { return "rgb(189, 195, 199)"; });
 	d3.select("#isoform")
 		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; }); 
@@ -766,8 +792,8 @@ function buttons(){
 	//durata animazione
 	var d = 450;
 	
-	//bottone per cancellare il contenuto della finestra e riattivare
-    //la struttura del gene    
+	//bottone per cancellare il contenuto della finestra della struttura
+	// espansa e riattivare la struttura del gene    
     d3.select("body").append("button")
         .attr("id", "clear_button")
         .attr("class", "btn-success")
@@ -776,7 +802,7 @@ function buttons(){
         .style("top", "74px")
         .style("left", function () { return (width - width_isoform + margin_isoform.left + 210) + "px"; })
         .style("position", "absolute")
-        .on("click", remove_element_info_box);
+        .on("click", remove_element_expande_box);
    
    d3.select("body").append("button")
         .attr("id", "zoom_button_on")
@@ -787,8 +813,10 @@ function buttons(){
         .style("left", function () { return (width - width_isoform + margin_isoform.left + 10) + "px"; })
         .style("position", "absolute")
         .on("click", function() {
-        				svg_box.style("cursor", "zoom-in");
+        				//non compatibile con tutti i browser!
+        				svg_isoform.style("cursor", "zoom-in");
         				
+        				//disabilita gli eventi mouse sulla struttura genica
         				d3.selectAll("#exon")
         					.attr("pointer-events", "none");
       					d3.selectAll("#exon_stripe")
@@ -799,6 +827,9 @@ function buttons(){
     						.attr("pointer-events", "none");                        
     					d3.selectAll("#intron")
     						.attr("pointer-events", "none");    
+        				
+        				//la sequenza nucleotidica viene resa invisibile
+        				//per evitare l'effetto dell'ingrandimento
         				d3.select("#title_sequence")
         					.transition()
         					.duration(d)
@@ -811,17 +842,19 @@ function buttons(){
         					.transition()
         					.duration(d)
         					.style("opacity", "0.0");
-        					
+        				
+        				//segnala lo zoom attivo	
         				d3.select("#zoom_button_on")
         					.style("color", "steelblue");
         				
+        				//rende visibili gli elementi aggiunti
         				d3.selectAll("#exon_s")
     							.attr("visibility", "visible");
     						d3.selectAll("#intron_s")
     							.attr("visibility", "visible");
         					
         				flag_zoom = true;
-        				zoom_isoform(svg_box); });
+        				zoom_isoform(svg_isoform); });
         
    
    d3.select("body").append("button")
@@ -833,10 +866,13 @@ function buttons(){
         .style("left", function () { return (width - width_isoform + margin_isoform.left + 110) + "px"; })
         .style("position", "absolute")
         .on("click", function(){
+        				//riporta la struttura genica alle dimensioni originali
         				zoom_isoform.translate([0, 0]).scale(1);
-        				svg_box.transition()
+        				svg_isoform.transition()
         					.duration(d)
         					.attr("transform", "translate(" + zoom_isoform.translate() + ")scale(" + zoom_isoform.scale() + ")");
+        			
+        				//attiva gli eventi mouse sulla struttura genica		
         				d3.selectAll("#exon")
         					.attr("pointer-events", "yes");
       					d3.selectAll("#exon_stripe")
@@ -847,7 +883,8 @@ function buttons(){
     						.attr("pointer-events", "yes");                        
     					d3.selectAll("#intron")
     						.attr("pointer-events", "yes");
-    						
+    					
+    					//rende visibile la sequenza nucleotidica	
         				d3.select("#title_sequence")
         					.transition()
         					.duration(d)
@@ -860,37 +897,41 @@ function buttons(){
         					.transition()
         					.duration(d)
         					.style("opacity", "1.0");
-        					
+        				
+        				//rende invisibili gli elementi aggiunti	
         				d3.selectAll("#exon_s")
     							.attr("visibility", "hidden");
     						d3.selectAll("#intron_s")
     							.attr("visibility", "hidden");
         				
+        				//segnala la disattivazione dello zoom
         				d3.select("#zoom_button_on")
         					.style("color", "white");
         				
-        				svg_box.style("cursor", "default");
+        				svg_isoform.style("cursor", "default");
         				
         				flag_zoom = false;
-        				svg_box.on("mousedown.zoom", null);
-						svg_box.on("mousemove.zoom", null);
-						svg_box.on("dblclick.zoom", null);
-						svg_box.on("touchstart.zoom", null);
-						svg_box.on("wheel.zoom", null);
-						svg_box.on("mousewheel.zoom", null);
-						svg_box.on("MozMousePixelScroll.zoom", null);
+        				//disattiva gli eventi corrispondenti allo zoom
+        				//nella finestra della struttura genica
+        				svg_isoform.on("mousedown.zoom", null);
+						svg_isoform.on("mousemove.zoom", null);
+						svg_isoform.on("dblclick.zoom", null);
+						svg_isoform.on("touchstart.zoom", null);
+						svg_isoform.on("wheel.zoom", null);
+						svg_isoform.on("mousewheel.zoom", null);
+						svg_isoform.on("MozMousePixelScroll.zoom", null);
         		});   
 }
 
-/* SVG_INFO_BOX
+/* SVG_EXPANDE_BOX
  * 
  * Crea una finestra dove saranno visualizzati gli elementi
  * appartenenti alla selezione e le rispettive informazioni
  * su "start" e "end". 
  */
-function svg_info_box(){
+function svg_expande_box(){
 	    
-    //vettore per il posizionamento            
+    //oggetto per il posizionamento            
     var p_s = {
     	pos : "absolute", 
     	left : "10px",
@@ -898,8 +939,12 @@ function svg_info_box(){
     	top: "380px", 
     	bottom : "10px"
     };
-                                   
-    var s_i = set_svg("expande_info", s_w, s_h, p_s);
+    
+    //dichiara finestra SVG                               
+    var s_i = set_svg("expande_box", s_w, s_h, p_s);
+    //se il mouse si trova sopra la finestra della struttura espansa
+    //nella finestra della struttura genica vengono visualizzati
+    //gli elementi selezionati al click del mouse
     s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; })
     	.on("mouseover", function() {
     						d3.selectAll("#exon_s")
@@ -920,20 +965,25 @@ function svg_info_box(){
 
 
 /* EXONS_SELECT
- * x -> funzione lo scaling delle posizioni
- * c_x -> coordinate della posizione del mouse
+ * x -> funzione per il range delle posizioni
+ * c_x -> coordinate (piano X) della posizione del mouse
  * r_e -> contenitore degli esoni
- * 
- * Evidenzia sulla struttura genica gli elementi selezionati.
+ *
+ * Seleziona l'esone che contiene le coordinate rimappate del mouse. 
+ * In base alle coordinate seleziona gli spice sites corrispondenti e
+ * e restituisce le regioni che compongono l'esone. 
  */
 function exons_select(x, c_x, r_e){
 	
+	//ad ogni click viene visualizzata gli elementi selezionati
+	//senza resettare la struttura genica
 	d3.select("#regions_selected")
 		.transition()
     	.duration(750)
     	.style("opacity", "0.0")
 		.remove();
 	
+	//rimozione sequenza nucleotidica
 	d3.select("#title_sequence_box")
     	.transition()
     	.duration(750)
@@ -965,7 +1015,7 @@ function exons_select(x, c_x, r_e){
     	.style("opacity", "0.0")
     	.remove(); 
     	
-    d3.select("#expande_info")
+    d3.select("#expande_box")
     	.style("border-color", function() { return "rgb(189, 195, 199)"; });
 	d3.select("#isoform")
 		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
@@ -977,11 +1027,13 @@ function exons_select(x, c_x, r_e){
 		}
 	}
 	
+	//rimozione dei duplicati nell'array delle regioni
 	reg_ext = remove_duplicate(reg_ext);
 	
 	var splice_select = [];
 	var s, e;
 	
+	//selezione degli splice sites corrispondenti alle coordinate
 	for(l = 0; l < reg_ext.length; l++){
 		s = regions[reg_ext[l]].start;
 		sl = regions[reg_ext[l]].start - 1;
@@ -1008,20 +1060,25 @@ function exons_select(x, c_x, r_e){
 }
 
 /* INTRONS_SELECT
- * x -> funzione lo scaling delle posizioni
- * c_x -> coordinate della posizione del mouse
- * r_e -> contenitore degli esoni
- * 
- * Evidenzia sulla struttura genica gli elementi selezionati.
+ * x -> funzione per il range delle posizioni
+ * c_x -> coordinate (piano X) della posizione del mouse
+ * r_e -> contenitore degli introni
+ *
+ * Seleziona l'introne che contiene le coordinate rimappate del mouse. 
+ * In base alle coordinate seleziona gli spice sites corrispondenti e
+ * e restituisce le regioni che compongono l'introne. 
  */
 function introns_select(x, c_x, r_e){
 	
+	//ad ogni click viene visualizzata gli elementi selezionati
+	//senza resettare la struttura genica
 	d3.select("#regions_selected")
 		.transition()
     	.duration(750)
     	.style("opacity", "0.0")
 		.remove();
 	
+	//rimozione sequenza nucleotidica
 	d3.select("#title_sequence_box")
     	.transition()
     	.duration(750)
@@ -1053,7 +1110,7 @@ function introns_select(x, c_x, r_e){
     	.style("opacity", "0.0")
     	.remove(); 
     	
-    d3.select("#expande_info")
+    d3.select("#expande_box")
     	.style("border-color", function() { return "rgb(189, 195, 199)"; });
 	d3.select("#isoform")
 		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
@@ -1065,11 +1122,13 @@ function introns_select(x, c_x, r_e){
 		}
 	}
 	
+	//rimozione dei duplicati nell'array delle regioni
 	reg_ext = remove_duplicate(reg_ext);
 	
 	var splice_select = [];
 	var s, e;
 	
+	//selezione degli splice sites corrispondenti alle coordinate
 	for(l = 0; l < reg_ext.length; l++){
 		s = regions[reg_ext[l]].start;
 		sl = regions[reg_ext[l]].start - 1;
@@ -1139,6 +1198,7 @@ function connect_exon(exon, sequence){
 	var xt_e = +sequence.attr("x") + sequence.text().length*5.5 + 2;
 	var yt_e = +sequence.attr("y") - 4;
 
+	//oggetto che contiente le coordinate rimappate in "source" e "target"
     point = [{ "source" : { "x" : xr_s + margin_isoform.left, "y" : yr_s}, 
     		   "target" : { "x" : xt_s + (margin_isoform.left * 20), "y" : yt_s + 135}},
     		 { "source" : { "x" : xr_e + margin_isoform.left, "y" : yr_e}, 
@@ -1150,8 +1210,9 @@ function connect_exon(exon, sequence){
     	.target(function(d) { return {"x":d.target.y, "y":d.target.x}; })
         .projection(function(d) { return [+d.y, +d.x + 50]; });
     
+    //i link vengono aggiunti solo se lo zoom è disattivato
     if(flag_zoom == false)
-    	svg_box.selectAll(".link")
+    	svg_isoform.selectAll(".link")
     		.data(point)
     		.enter().append("path")
     		.attr("class", "link")
@@ -1182,6 +1243,7 @@ function connect_intron(intron, sequence){
 	var off_set_s = off_set_ex + (margin_isoform.left * 20) - sequence.text().length*12 + 2;
 	var off_set_e = off_set_ex + (margin_isoform.left * 20) - sequence.text().length*13;
 
+    //oggetto che contiente le coordinate rimappate in "source" e "target"
     point = [{ "source" : { "x" : xr_s + margin_isoform.left, "y" : yr_s}, 
     		   "target" : { "x" : xt_s + (margin_isoform.left * 20) + off_set_s, "y" : yt_s + 135}},
     		 { "source" : { "x" : xr_e + margin_isoform.left, "y" : yr_e}, 
@@ -1193,8 +1255,9 @@ function connect_intron(intron, sequence){
     	.target(function(d) { return {"x":d.target.y, "y":d.target.x}; })
         .projection(function(d) { return [+d.y, +d.x + 50]; });
     
+    //i link vengono aggiunti solo se lo zoom è disattivato
     if(flag_zoom == false)    	
-    	svg_box.selectAll(".link")
+    	svg_isoform.selectAll(".link")
     		.data(point)
     		.enter().append("path")
     		.attr("id", "link_in")
@@ -1228,32 +1291,37 @@ function element_selected_intron(s, e){
 
 /* DISPLAY_INFO
  * s_i -> finestra creata per visualizzare le informazioni
- * domain -> dominio della finestra di visualizzazione degli elementi
+ * x_iso -> dominio della finestra di visualizzazione degli elementi
+ * 			(è lo stesso della struttura genica)
  * elements -> elementi estratti dalla struttura del gene
  *             in base alla selezione.
  * r -> contenitore degli esoni
- * x -> variabile che contiene la funzione per il range della finestra
  * 
- * Visualizza gli elementi appartenenti alla selezione sulla struttura genica
+ * Visualizza gli elementi, appartenenti alla selezione sulla struttura genica, 
+ * nella finestra della struttura espansa.
  */ 
-function display_info(s_i, x_iso, elements, r, x){
+function display_info(s_i, x_iso, elements, r){
     
     //elementi estratti dalla selezione
     var exons_info = elements.r_i;
     var introns_info = elements.i_i;
+    
+    //posizione e dimensione della tabella
     var start_table = s_w - width_isoform + margin_isoform.left + margin_isoform.right;
     var column_start = 50, column_end = 200;
+    
+    //valori originali delle regioni
     var o_s = {
 		exons : original_structure(original_regions, 'exon'),
 		introns: original_structure(original_regions, 'intron')
 	};
+	
     //colori degli elementi
     var color_exon = function() { return d3.rgb("#228B22"); };
     var color_intron = function() { return d3.rgb("black"); };
           
     //variabili per le operazioni di trasformazione 
-    var transf = {
-    	
+    var transf = {	
     	//traslazione esoni   
    		t_e : d3.svg.transform()
         	.translate(function (d, i) { return [x_iso(d.start), i * 45]; }),
@@ -1276,12 +1344,17 @@ function display_info(s_i, x_iso, elements, r, x){
     //tabella contenente le informazioni di "start" e "end" degli elementi
     //della struttura espansa   
     var table_text = [];
+    //crea il vettore contenente le informazioni degli esoni
     for(k = 0; k < exons_info.length; k++)
     	table_text.push(exons_info[k]);
+    	
+    //crea il vettore contenente le informazioni degli introni
     if(introns_info != null)
     	for(k = 0; k < introns_info.length; k++)
     		table_text.push(introns_info[k]);
     
+    //se exons_info è NULL significa che il click è stato fatto
+    //sopra un introne
     if(exons_info != null){
     //esoni e introni selezionati
     var g = s_i.append("g")
@@ -1299,7 +1372,7 @@ function display_info(s_i, x_iso, elements, r, x){
         .on("mouseover", function(d) { 
                             d3.select(this).style('cursor', 'context-menu');
                             //esone selezionato nella struttura
-                            var s = element_selected_exon(r, x(d.start), x(d.end));
+                            var s = element_selected_exon(r, x_iso(d.start), x_iso(d.end));
                             
                             seq_id = "#sequence_ex_" + d.id;
                             //sequenza nucleotidica corrispondente
@@ -1311,16 +1384,20 @@ function display_info(s_i, x_iso, elements, r, x){
                             })
         .on("mouseout", function(d) { 
                             d3.select(this).style('cursor', 'default');
+                            //elimina la selezione
                             d3.select("#element_info_exon").remove();
                             
                             seq_id = "#sequence_ex_" + d.id;
                             d3.select(seq_id).style("fill", "black");
+                            //elimina i link 
                             d3.selectAll(".link").remove();
                             d3.selectAll("#text_" + d.id)
                             	.style("fill", "black");
                            })
         .on("click", function(d) {
-        	        				
+        	        	
+        	        	//modifica dei dati che saranno visualizzati nella
+        	        	//finestra modale			
         				d3.select("#modal_body").selectAll("p")
         					.remove();
         						
@@ -1348,6 +1425,7 @@ function display_info(s_i, x_iso, elements, r, x){
         .duration(750)
         .style("opacity","1.0");
     }
+    //se introns_info è NULL nella selezione non sono presenti introni
     if(introns_info != null){
     	g.selectAll("line")
     		.data(introns_info)
@@ -1367,7 +1445,8 @@ function display_info(s_i, x_iso, elements, r, x){
                                 var tf_info_text = d3.svg.transform()
                                     .translate(function () { 
                                         return [0, (i * 20) + (exons_info.length * 45)]; });
-                                    
+                                
+                                //aggiunta del pattern agli estremi dell'introne    
                                 g.append("text")
                                     .attr("x", x_iso(d.start) - 15)
                                     .attr("y", 38)
@@ -1384,24 +1463,33 @@ function display_info(s_i, x_iso, elements, r, x){
                                     .attr("transform", tf_info_text)
                                     .style("fill", "black")
                                     .text(d.pattern.slice(2,4).toUpperCase());
-                                    
-                                var s = element_selected_intron(x(d.start), x(d.end));
+                                
+                                //elemento selezionato sulla struttura genica    
+                                var s = element_selected_intron(x_iso(d.start), x_iso(d.end));
+                                //sequenza nucleotidica
                                 seq_id = "#sequence_in_" + d.id;
                                 var t = d3.select(seq_id);
                                 t.style("fill", "#822222");
+                                //link
                                 connect_intron(s, t);
                                 d3.selectAll("#text_" + d.id)
                             	.style("fill", "#822222"); })
             .on("mouseout", function(d) { 
+            					//rimozione elemento selezionato
                                 d3.select(this).style('cursor', 'default');
                                 d3.select("#element_info_intron").remove();
+                                //rimozione sequenza nucleotidica
                                 seq_id = "#sequence_in_" + d.id;
                                 d3.select(seq_id).style("fill", "black");
                                 g.selectAll("text").remove();
+                                //rimozione link
                                 d3.selectAll(".link").remove();
                                 d3.selectAll("#text_" + d.id)
                             		.style("fill", "black"); })
             .on("click", function(d) {
+            					
+            					//modifica dei dati che verrano visualizzati
+            					//nella finestra modale
         						d3.select("#modal_body").selectAll("p")
         							.remove();
         						d3.select("#modal_t").selectAll("h4")
@@ -1431,6 +1519,7 @@ function display_info(s_i, x_iso, elements, r, x){
         	.style("opacity","1.0");
 	} 
 	
+	//aggiunta della tabella
 	var table_title = s_i.append("g")
         .attr("id", "table_title")
         .attr("transform", transf.tf_table_title)
@@ -1483,7 +1572,8 @@ function display_info(s_i, x_iso, elements, r, x){
     	.attr("x", function(d,i) { return (column_start - (d.start.toString().length)); })
     	.attr("y", 15)
     	.attr("transform", function(d, i) { 
-    						
+    						//la posizione del testo della tabella viene recuperata
+    						//dall'elemento a cui corrisponde con l'attributo "transform"
     						if(d.pattern == null)
     							return "translate(0," +  i * 45 + ")";
     						else
@@ -1493,6 +1583,7 @@ function display_info(s_i, x_iso, elements, r, x){
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.text(function(d) { 
+    			//recupero dei valori originali
     			if(d.pattern == null)
     				return o_s.exons[d.id].start;
     			else
@@ -1514,7 +1605,8 @@ function display_info(s_i, x_iso, elements, r, x){
     	.attr("x", function(d,i) { return (column_end - (d.start.toString().length)); })
     	.attr("y", 15)
     	.attr("transform", function(d, i) { 
-    						
+    						//la posizione del testo della tabella viene recuperata
+    						//dall'elemento a cui corrisponde con l'attributo "transform"
     						if(d.pattern == null)
     							return "translate(0," +  i * 45 + ")";
     						else
@@ -1524,6 +1616,7 @@ function display_info(s_i, x_iso, elements, r, x){
     	.style("font-family", "Arial, Helvetica, sans-serif")
     	.style("fill", "black")
     	.text(function(d) { 
+    			//recupero dei valori originali
     			if(d.pattern == null)
     				return o_s.exons[d.id].end;
     			else
@@ -1533,43 +1626,44 @@ function display_info(s_i, x_iso, elements, r, x){
         .duration(750)
         .style("opacity","1.0");
 	
-	console.log(o_s.exons);
-	console.log(o_s.introns);
+	//console.log(o_s.exons);
+	//console.log(o_s.introns);
 }
 
 
 /* DISPLAY_INFO_STRIPE
  * s_i -> finestra creata per visualizzare le informazioni
- * domain -> dominio della finestra di visualizzazione degli elementi
+ * x_iso -> dominio della finestra di visualizzazione degli elementi
  * elements -> elementi estratti dalla struttura del gene
  *             in base alla selezione.
  * r -> contenitore degli esoni
- * x -> variabile che contiene la funzione per il range della finestra
  * 
- * Visualizza gli elementi appartenenti alla selezione 
- * (per esone 'conservative').
+ * Visualizza gli elementi, appartenenti alla selezione sulla struttura genica, 
+ * nella finestra della struttura espansa (per esoni 'conservative').
+ * La funzione esegue le stesse operazioni di "display_info" ma viene lanciata 
+ * al click sopra un esone 'conservative' (esone con texture).
  */     
-function display_info_stripe(s_i, x_iso, elements, r, x){
+function display_info_stripe(s_i, x_iso, elements, r){
     
     //elementi estratti dalla selezione
     var exons_info = elements.r_i;
     var introns_info = elements.i_i;
+    
+    //posizione e dimensione della tabella
     var start_table = s_w - width_isoform + margin_isoform.left + margin_isoform.right;
     var column_start = 50, column_end = 200;
+    
     //colori degli elementi
     var color_exon = function() { return d3.rgb("#228B22"); };
     var color_intron = function() { return d3.rgb("black"); };
     
-    var transf = {
-    	
+    var transf = {	
     	//traslazione esoni   
    		t_e : d3.svg.transform()
         	.translate(function (d, i) { return [x_iso(d.start), i * 45]; }),
-        	//.scale(function (d, i) { return [2.8, 1]; }),
         //traslazione introni
     	t_i : d3.svg.transform()
         	.translate(function (d, i) { return [0, (i * 20) + (exons_info.length * 45)]; }),
-        	//.scale(function () { return [2, 1]; }),
         //traslazione contenitore elementi 
     	tf_g : d3.svg.transform()
         	.translate(function (d, i) { return [15, 20]; }),
@@ -1580,9 +1674,7 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
         tf_table_end : d3.svg.transform()
             .translate(function (d, i) { return [start_table, 45]; })
        };
-    
-    
-    
+       
     //esoni
     var g = s_i.append("g")
         .attr("id", "regions_selected")
@@ -1659,11 +1751,10 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
 			.on("mouseover", function(d, i) { 
                                 d3.select(this).style('cursor', 'crosshair');
                                 var s = element_selected_intron(x(d.start), x(d.end));
-                                //traslazione testo pattern
+
                                 var tf_info_text = d3.svg.transform()
                                     .translate(function () { 
                                         return [0, (i * 20) + (exons_info.length * 45)]; });
-                                    //.scale(function () { return [2, 1]; });
                                     
                                 g.append("text")
                                     .attr("x", x_iso(d.start) - 15)
@@ -1730,7 +1821,6 @@ function display_info_stripe(s_i, x_iso, elements, r, x){
 		introns: original_structure(original_regions, 'intron')
 	};  
 	
-	//tabella contenente le informazioni di "start" e "end" degli elementi selezionati   
     var table_text = [];
     for(k = 0; k < exons_info.length; k++)
         table_text.push(exons_info[k]);
@@ -1868,26 +1958,31 @@ function pattern_exons(){
  * regions_info -> vettore che contiene gli ID delle regioni
  *                 che compongono l'esone 
  * c -> coordinate(mouse) della selezione
+ * r_e -> contenitore degli esoni
  * 
- * Crea una struttura di esoni(per regioni) e introni in base
- * alle coordinate della selezione. Restituisce una struttura di array.
+ * Crea una struttura di esoni e introni in base
+ * alle coordinate della selezione. Restituisce una struttura contenente
+ * gli array degli esoni e introni trovati.
  */
 function check_structure_element(regions_info, c, r_e){
 	
-    var flag;
     //elementi che verranno estratti dalla selezione 
     var element = {
     	r_i : [],
     	i_i : [],
     };
     
+    //il click della selezione è stato fatto sopra un esone
     if(flag_exon == true){
+    	//ricerca gli esoni contengono almeno una regione che compone
+    	//l'esone selezionato
     	for(rg = 0; rg < regions_info.length; rg++)
     		for(re = 0; re < exons_restruct.length; re++)
     			for(ra = 0; ra < exons_restruct[re].regions.length; ra++)
     				if(regions_info[rg] == exons_restruct[re].regions[ra])
         				element.r_i.push(exons_restruct[re]);
-    
+    	
+    	//rimuove i duplicati tra gli esoni trovati
     	element.r_i = remove_duplicate(element.r_i);
     }
     
@@ -1897,7 +1992,8 @@ function check_structure_element(regions_info, c, r_e){
             element.i_i.push(introns_restruct[i]);
         d3.select("#i_e_" + introns_restruct[i].id).remove();
     }
-   
+    
+    //elementi.i_i è NULL se nella selezione non sono presenti gli introni
     if(element.i_i != null)
 		for(rs = 0; rs < element.i_i.length; rs++)
     		r_e.append("line")
@@ -1910,6 +2006,7 @@ function check_structure_element(regions_info, c, r_e){
 				.style("stroke", "black")
 				.style("stroke-width", 6);
     
+    //elementi selezionati sulla struttura genica
     for(rs = 0; rs < element.r_i.length; rs++)
     	r_e.append("rect")
 			.attr("id", "exon_s")
@@ -1925,11 +2022,17 @@ function check_structure_element(regions_info, c, r_e){
     return element;   
 }
 
+/* MOUSE_POS
+ * xm -> coordinata sull'assse X del mouse
+ * ym -> coordinata sull'asse Y del mouse
+ * 
+ * Aggiunge un segnalatore nel punto in cui è avvenuto il click del mouse.
+ */
 function mouse_pos(xm, ym){
 	
 	d3.selectAll("#cross_pos").remove();
 	
-	svg_box.append("path")
+	svg_isoform.append("path")
 		.attr("id", "cross_pos")
     	.attr("transform", function(d) { return "translate(" + xm + "," + ym + ")"; })
     	.attr("d", d3.svg.symbol().type("cross"))
@@ -1944,19 +2047,22 @@ function mouse_pos(xm, ym){
  * 
  * Disegna gli esoni differenziandoli in base al campo "alternative". In base
  * alla posizione del mouse e all'evento connesso ad esso, richiama le funzioni 
- * per la visualizzazione dell'elemento selezionato.
+ * per la visualizzazione degli elementi selezionati.
  */
 function draw_exons(box, exons, x_scale){
 	
 	//array per gli esoni "conservative"
 	var exons_stripe = [];
+	//altezza esoni
 	var exons_h = 75;
+	
 	//colori per gli elementi
 	var color_exon = function() { return d3.rgb("#228B22"); };
 	var color_exon_after = function() { return d3.rgb("#808080"); };
     var color_intron = function() { return d3.rgb("black"); };
     var color_intron_after = function() { return d3.rgb("#808080"); };
 	
+	//vettore di esoni 'conservative'
 	for(k = 0; k < exons.length; k++)
 	   if(exons[k].alternative == false)
 	       exons_stripe.push(exons[k]);
@@ -1965,7 +2071,7 @@ function draw_exons(box, exons, x_scale){
 	var tf = d3.svg.transform()
 		.translate(function (d) { return [x_scale(d.start), 0]; });
 	
-	//contenitore degli esoni
+	//contenitore degli esoni 'alternative'
 	var rect_exons = box.append("g")
 		.attr("id", "exons")
 		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top/2 + ")");
@@ -1984,31 +2090,33 @@ function draw_exons(box, exons, x_scale){
 		.attr("transform",tf)
 		.on("click", function(d){ 
 					   
+					   //aggiorna la selezione
 					   if(flag_structure == true){
 					      d3.selectAll("#exon_s")
 					      	.remove();	
 					      d3.selectAll("#intron_s")
 					      	.remove();				
 					   }
-					   	 	   
+					   
+					   //selezione sopra esoni 'alternative'	 	   
 		               if(d.alternative == true){
+		               	  //colora di grigio la struttura per evidenziare la selezione
 		                  d3.selectAll("#exon")
 						    .style("fill", color_exon_after);
-						  
 						  d3.selectAll("#intron")
                             .style("stroke", color_intron_after);
-                          
-                          for(s = 0; s < s_s_restruct.length; s++)
-                          	d3.select("#s_s_" + s_s_restruct[s].id)
-                            	.style("stroke", color_intron_after)
-                            	.style("stroke-width", "1px");
-                          
                           for(s = 0; s < s_s_restruct.length; s++)
                           	d3.select("#up_" + s)
                             	.style("stroke", color_intron_after);
                           for(s = 0; s < s_s_restruct.length; s++)
                           	d3.select("#down_" + s)
                             	.style("stroke", color_intron_after);
+                          
+                          //ripristina gli splice sites
+                          for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#s_s_" + s_s_restruct[s].id)
+                            	.style("stroke", color_intron_after)
+                            	.style("stroke-width", "1px");
                           									
 						  //coordinate della posizione del mouse al momento del "click"
 						  var coord_x = x_scale.invert(d3.event.pageX - 25);
@@ -2016,12 +2124,13 @@ function draw_exons(box, exons, x_scale){
 						  var yc = d3.event.pageY - 110;
 						  mouse_pos(xc, yc);
 						  
+						  //funzioni per gli elementi selezionati
 						  var regions = exons_select(x_scale, coord_x, rect_exons);
 						  flag_exon = true;					  
 						  info_structure = check_structure_element(regions, coord_x, rect_exons);  	
-						  display_info(svg_info, x_scale, info_structure, rect_exons, x_scale);
+						  display_info(svg_expande, x_scale, info_structure, rect_exons);
 						  sequence_box(box, info_structure);
-						  d3.select("#expande_info")
+						  d3.select("#expande_box")
 						  	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
 						  d3.select("#isoform")
 						  	.style("border-color", function() { return "rgb(189, 195, 199)"; });    
@@ -2033,11 +2142,11 @@ function draw_exons(box, exons, x_scale){
 	    .duration(750)
 	    .attr("height", exons_h);
 	
-	//esoni alternative = false								 
+	//esoni 'conservative'							 
 	var rect_exons_stripe = box.append("g")
         .attr("id", "exons_stripes")
         .attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top/2 + ")");
-    //aggiunge i blocchi "esoni alternative"
+    //aggiunge i blocchi per gli esoni 'conservative'
     rect_exons_stripe.selectAll("rect")
         .data(exons_stripe)
         .enter()
@@ -2047,45 +2156,51 @@ function draw_exons(box, exons, x_scale){
         .attr("height", "0")
         .attr("rx", 3)
 		.attr("ry", 3)
+		//applica la texture a strisce
         .style("fill", 'url(#diagonalHatch)')
         .attr("transform",tf) 
         .on("click", function(d){ 
+        				
+        				//aggiorna la selezione
         				if(flag_structure == true){
 					      d3.selectAll("#exon_s")
 					      	.remove();
 					      d3.selectAll("#intron_s")
 					      	.remove();
-					   }
+					    }
         				
+        				//colora di grigio la struttura per evidenziare
+        				//la selezione degli elementi
                         d3.selectAll("#exon")
                           .style("fill", color_exon_after);
                         d3.selectAll("#intron")
                             .style("stroke", color_intron_after);
-                            
-                        for(s = 0; s < s_s_restruct.length; s++)
-                          	d3.select("#s_s_" + s_s_restruct[s].id)
-                            	.style("stroke", color_intron_after)
-                            	.style("stroke-width", "1px");
-                          
                         for(s = 0; s < s_s_restruct.length; s++)
                           	d3.select("#up_" + s)
                             	.style("stroke", color_intron_after);
                         for(s = 0; s < s_s_restruct.length; s++)
                           	d3.select("#down_" + s)
-                            	.style("stroke", color_intron_after);    
+                            	.style("stroke", color_intron_after); 
                         
+                        //ripristina gli splice sites    
+                        for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#s_s_" + s_s_restruct[s].id)
+                            	.style("stroke", color_intron_after)
+                            	.style("stroke-width", "1px");
+                         
         		        //coordinate della posizione del mouse al momento del "click"       
                         var coord_x = x_scale.invert(d3.event.pageX - 25);
                         var xc = d3.event.pageX - 15;
 						var yc = d3.event.pageY - 110;
 						mouse_pos(xc, yc);
-						  
+						
+						//funzioni per gli elementi selezionati  
 						var regions = exons_select(x_scale, coord_x, rect_exons);
 						flag_exon = true;
                        	info_structure = check_structure_element(regions, coord_x, rect_exons);  
-                        display_info_stripe(svg_info, x_scale, info_structure, rect_exons_stripe, x_scale);
+                        display_info_stripe(svg_expande, x_scale, info_structure, rect_exons_stripe);
                         sequence_box(box, info_structure);
-                        d3.select("#expande_info")
+                        d3.select("#expande_box")
                         	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
 						d3.select("#isoform")
 						 	.style("border-color", function() { return "rgb(189, 195, 199)"; });
@@ -2110,8 +2225,6 @@ function draw_exons(box, exons, x_scale){
  */
 function draw_introns(box, introns, x_scale){
     
-    //colore introni
-    var color_intron = function() { return d3.rgb("black"); };
     //colori per gli elementi
 	var color_exon = function() { return d3.rgb("#228B22"); };
 	var color_exon_after = function() { return d3.rgb("#808080"); };
@@ -2134,44 +2247,49 @@ function draw_introns(box, introns, x_scale){
 		.style("stroke", color_intron)
 		.style("stroke-width", 6)
 		.on("click", function(d){
+			
+						//aggiorna la selezione
 						if(flag_structure == true){
 					      d3.selectAll("#exon_s")
 					      	.remove();					
-					   }
-					   	 	   
-		                  d3.selectAll("#exon")
+					    }
+					   	
+					   	//colora di grigio la struttura per evidenziare
+					   	//la selezione degli elementi 	   
+		                d3.selectAll("#exon")
 						    .style("fill", color_exon_after);
-						  
-						  d3.selectAll("#intron")
+						d3.selectAll("#intron")
                             .style("stroke", color_intron_after);
+                        for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#up_" + s)
+                            	.style("stroke", color_intron_after);
+                        for(s = 0; s < s_s_restruct.length; s++)
+                          	d3.select("#down_" + s)
+                            	.style("stroke", color_intron_after);
                           
-                          for(s = 0; s < s_s_restruct.length; s++)
+                        for(s = 0; s < s_s_restruct.length; s++)
                           	d3.select("#s_s_" + s_s_restruct[s].id)
                             	.style("stroke", color_intron_after)
                             	.style("stroke-width", "1px");
                           
-                          for(s = 0; s < s_s_restruct.length; s++)
-                          	d3.select("#up_" + s)
-                            	.style("stroke", color_intron_after);
-                          for(s = 0; s < s_s_restruct.length; s++)
-                          	d3.select("#down_" + s)
-                            	.style("stroke", color_intron_after);
-                          //coordinate della posizione del mouse al momento del "click"
-						  var coord_x = x_scale.invert(d3.event.pageX - 25);
-						  var xc = d3.event.pageX - 15;
-						  var yc = d3.event.pageY - 110;
-						  mouse_pos(xc, yc);
+                          
+                        //coordinate della posizione del mouse al momento del "click"
+						var coord_x = x_scale.invert(d3.event.pageX - 25);
+						var xc = d3.event.pageX - 15;
+						var yc = d3.event.pageY - 110;
+						mouse_pos(xc, yc);
 						  
-						  var regions = introns_select(x_scale, coord_x, line_introns);		
-						  flag_exon = false;			  
-						  info_structure = check_structure_element(regions, coord_x, line_introns);  	
-						  display_info(svg_info, x_scale, info_structure, line_introns, x_scale);
-						  sequence_box(box, info_structure);
-						  d3.select("#expande_info")
-						  	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-						  d3.select("#isoform")
+						//funzioni per gli elementi selezionati
+						var regions = introns_select(x_scale, coord_x, line_introns);		
+						flag_exon = false;			  
+						info_structure = check_structure_element(regions, coord_x, line_introns);  	
+						display_info(svg_info, x_scale, info_structure, line_introns, x_scale);
+						sequence_box(box, info_structure);
+						d3.select("#expande_box")
+							.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
+						d3.select("#isoform")
 						  	.style("border-color", function() { return "rgb(189, 195, 199)"; });
-					})
+						})
 		.on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
 		.transition()
@@ -2183,7 +2301,7 @@ function draw_introns(box, introns, x_scale){
 }
 
 
-/* CLONE_TRIANGLE_UP (DEPRECATED)
+/* CLONE_SVG_ELEMENT (DEPRECATED)
  * svg -> variabile che contiene l'elemento "svg"
  * obj -> oggetto da clonare
  * 
@@ -2191,6 +2309,7 @@ function draw_introns(box, introns, x_scale){
  * visualizzazione contenuta nella variabile "svg".
  * Il contenitore "g" del "segnale alto" della tipologia degli splice sites 
  * viene clonato e riutilizzato per aggiungere un "segnale basso".
+ * Il tag <use> in Safari e Chrome non viene renderizzato istantaneamente.
  */
 function clone_svg_element(svg, obj) {
 	
@@ -2212,10 +2331,10 @@ function draw_splice_sites(box, s_s, x_scale){
 		
 	var color_s_s = function() { return d3.rgb("black"); };
 	
-	console.log(s_s);
+	//console.log(s_s);
 	
 	//variabile per i simboli della tipologia 
-	//di splice_sites
+	//degli splice sites
 	var s_sy = d3.svg.symbol()
 		.type('triangle-up')
 		.size(20);
@@ -2249,7 +2368,7 @@ function draw_splice_sites(box, s_s, x_scale){
 	    .duration(750)
 	    .style("opacity", "1.0");
 	    									  
-	//segnale alto tipologia splice_site		
+	//segnale alto tipologia splice sites		
 	var triangle_up = box.append("g")
 		.attr("id", "triangle_up")
 		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top/2 + ")");
@@ -2263,12 +2382,15 @@ function draw_splice_sites(box, s_s, x_scale){
 		.attr("stroke","black")
 		.attr("stroke-width", "1px")
 		.attr("visibility", function(d) { 
+								//se lo splice site è 'init' o 'term' non deve
+								//aver un segnale di tipologia
 								if((d.type == 'init') | (d.type == 'term'))
 									return "hidden";
 								else
 									return "visible";})
 		.style("opacity", "0.0")
 		.attr("transform", function (d) {
+							  //ruota il segnale in base alla tipologia
 		                      if(d.type == 3)
 							     return "translate(" + (x_scale(d.position) - 3) + ",-27)" + "rotate(-90)";
 							  else
@@ -2279,6 +2401,7 @@ function draw_splice_sites(box, s_s, x_scale){
         .duration(750)
         .style("opacity", "1.0");
     
+    //contenitore segnale basso degli splice sites
     var triangle_down = box.append("g")
 		.attr("id", "triangle_down")
 		.attr("transform", "translate(" + margin_isoform.left + "," + margin_isoform.top/2 + ")");
@@ -2307,17 +2430,7 @@ function draw_splice_sites(box, s_s, x_scale){
         .delay(1500)
         .duration(750)
         .style("opacity", "1.0");
-        
-	/*//viene clonato triangle_up (DEPRECATED)									 
-	var td = clone_svg_element(box, triangle_up);
-	td.attr("transform", "translate(0, 136)")
-    	.attr("id", "triangle_down")
-    	.attr("opacity", "0.0")
-    	.transition()
-        .delay(1500)
-        .duration(750)
-        .style("opacity", "1.0");*/
-			
+   		
 	return splice_sites;
 }
 
@@ -2334,7 +2447,7 @@ function sequence_box(s_box, seq_info){
 	var color_title = function() { return d3.rgb("blue"); };
 	var color_sequence = function() { return d3.rgb("black"); };
 	
-	//array delle posizioni in base al numero di sequenze 
+	//oggetto delle posizioni in base al numero di sequenze 
 	//da visualizzare
 	var position = {
 		y_pos : 190,
@@ -2359,7 +2472,7 @@ function sequence_box(s_box, seq_info){
         flag_sequence = true;
     }
     	
-    //offset tra sequenze di esoni e introni 
+    //offset tra sequenze di esoni e introni in base alla presenza degli stessi
     if(seq_info.r_i != null)   	
 		off_set_ex = seq_info.r_i.length * position.x_pos_ex;
 	if(seq_info.i_i != null)
@@ -2380,21 +2493,27 @@ function sequence_box(s_box, seq_info){
     	.enter().append("text")
     	.attr("id", function(d) { return "sequence_ex_" + d.id; })
         .attr("x", function (d, i) { 
+        			//la sequenza da visualizza viene costruita concatenando le prime e le ultime
+        			//quattro lettere ed inserendo dei caratteri di continuità nel mezzo.
+        			//Viene utilizzata per calcolare la posizione del testo.
         			var seq = '';
         			var li = '- - - - -';
         			seq = seq.concat(d.sequence.slice(0,4).toUpperCase(), li,
         							 d.sequence.slice(d.sequence.length - 4,d.sequence.length).toUpperCase());
+        			//calcolo della lunghezza della stringa in base al font
         			var canvas = document.createElement('canvas');
 					var ctx = canvas.getContext("2d");
 					ctx.font = "15px Arial";        
-					var width = ctx.measureText(seq).width;
-        			return (i * width); })
+					var width_seq = ctx.measureText(seq).width;
+        			return (i * width_seq); })
         .attr("y", 30)
         .style("font-size", "12px")
         .style("font-family", "Arial, Helvetica, sans-serif")
         .style("fill", color_sequence)
         .style("opacity", "0.0")
         .text(function(d) { 
+        		//la sequenza da visualizza viene costruita concatenando le prime e le ultime
+        		//quattro lettere ed inserendo dei caratteri di continuità nel mezzo
         		var seq = '';
         		var li = '- - - - -';
         		seq = seq.concat(d.sequence.slice(0,4).toUpperCase(), li,
@@ -2411,6 +2530,10 @@ function sequence_box(s_box, seq_info){
             .enter().append("text")
             .attr("id", function(d) { return "sequence_in_" + d.id; })
             .attr("x", function (d, i) {
+            			
+            			//la sequenza da visualizza viene costruita concatenando le prime e le ultime
+        				//quattro lettere ed inserendo dei caratteri di continuità nel mezzo.
+        				//Viene utilizzata per calcolare la posizione del testo.
             			var seq_in = d.prefix + d.suffix;
             			var seq = '';
         				var li = '- - - - -';
@@ -2419,14 +2542,16 @@ function sequence_box(s_box, seq_info){
             			var canvas = document.createElement('canvas');
 						var ctx = canvas.getContext("2d");
 						ctx.font = "18px Arial";        
-						var width = ctx.measureText(seq).width;
-        				return (i * width); })
+						var width_seq = ctx.measureText(seq).width;
+        				return (i * width_seq); })
             .attr("y", 30)
             .style("font-size", "12px")
             .style("font-family", "Arial, Helvetica, sans-serif")
             .style("fill", color_sequence)
             .style("opacity", "0.0")
             .text(function(d) {
+            		//la sequenza da visualizza viene costruita concatenando le prime e le ultime
+        			//quattro lettere ed inserendo dei caratteri di continuità nel mezzo.
             		var seq_in = d.prefix + d.suffix;
             		var seq = '';
         			var li = '- - - - -';
@@ -2439,14 +2564,15 @@ function sequence_box(s_box, seq_info){
 }
 
 
-/* REGIONS_SCALED
+/* SCALING_REGIONS
  * r -> regioni
  * 
  * Modifica le regioni in base alla loro dimensione (size = end - start). Aumenta
  * quelle minori di 50 e diminuisce quelle maggiori di 1500
  */
-function regions_scaled(r){
+function scaling_regions(r){
 	
+	//calcolo delle dimensioni delle regioni
 	for(i = 0; i < r.length - 1; i++){
 		size_regions = r[i].end - r[i].start;
 		
@@ -2475,9 +2601,10 @@ function regions_scaled(r){
  */
 function change_gene(){
     
+    //durata animazioni
     var d = 450;
     
-    //rimozione di tutti i box
+    //rimozione di tutti i box SVG
     var g = d3.select("#isoform").selectAll("g");
     g.remove();
     
@@ -2485,31 +2612,33 @@ function change_gene(){
     d3.select("#title").remove();
     
     //pulisce la finestra degli elementi selezionati
-    remove_element_info_box();
+    remove_element_expande_box();
     
+    //reinizializza la struttura
     init();
     zoomListener.translate([0, 0]).scale(1);
-    svg_box.transition()
+    svg_isoform.transition()
     	.duration(d)
         .attr("transform", "translate(" + zoomListener.translate() + ")scale(" + zoomListener.scale() + ")");  
     flag_zoom = false;
-    svg_box.on("mousedown.zoom", null);
-	svg_box.on("mousemove.zoom", null);
-	svg_box.on("dblclick.zoom", null);
-	svg_box.on("touchstart.zoom", null);
-	svg_box.on("wheel.zoom", null);
-	svg_box.on("mousewheel.zoom", null);
-	svg_box.on("MozMousePixelScroll.zoom", null); 
+    svg_isoform.on("mousedown.zoom", null);
+	svg_isoform.on("mousemove.zoom", null);
+	svg_isoform.on("dblclick.zoom", null);
+	svg_isoform.on("touchstart.zoom", null);
+	svg_isoform.on("wheel.zoom", null);
+	svg_isoform.on("mousewheel.zoom", null);
+	svg_isoform.on("MozMousePixelScroll.zoom", null); 
 }
 
 
 /* SELECT_GENE
  * 
  * Crea il menù per selezionare il gene di cui visualizzare la struttura.
- * Inizializza le finestre di visualizzazione e chiama la funzione "init"
+ * Inizializza le finestre di visualizzazione e chiama la funzione "init".
  */
 function select_gene(){
       
+    //menù 'select' per la selezione del gene da visualizzare
     var s_g = d3.select("body").append("g");
     s_g.style("top", "40px")
        .style("left", function () { return (width - width_isoform + margin_isoform.left + 10) + "px"; })
@@ -2527,9 +2656,7 @@ function select_gene(){
     //texture esoni alternative
     pattern_exons();
     
-    //dimensioni e posizione finestra della struttura
-    //del gene
-    
+    //oggetto per la posizione della finestra della struttura
     var pos_box = {
     	pos: "absolute",
     	left : "10px",
@@ -2537,11 +2664,11 @@ function select_gene(){
     	top : "110px",
     	bottom : "10px"
     };
-    svg_box = set_svg("isoform", width - width_isoform, height_isoform, pos_box);  
+    svg_isoform = set_svg("isoform", width - width_isoform, height_isoform, pos_box);  
          
     init();   
     
-    svg_info = svg_info_box();  
+    svg_expande = svg_expande_box();  
     
     legend_box();  
     buttons();                       
@@ -2561,7 +2688,7 @@ function display_gene(){
     var title = ""; 
     title = title.concat(original_info.gene + " gene structure");
     
-    //array per il posizionamento
+    //oggeto per il posizionamento
     var pos_title = {
     	pos : "absolute",
     	left : margin_isoform.left + "px",
@@ -2572,6 +2699,7 @@ function display_gene(){
     
     //altezza finestra
     var svg_height = 50; 
+    //dichiarazione finestra SVG per il titolo
     var svg_title = set_svg("title", (width - width_isoform - 200), svg_height, pos_title);
     
     svg_title.append("text")
@@ -2630,6 +2758,12 @@ function display_gene(){
        .style("opacity", "1.0");
 }
 
+/* ORIGINAL_STRUCTURE
+ * s -> struttura
+ * type_structure -> tipologia della struttura (esone, introni o splice sites)
+ * 
+ * Ricalcola le strutture utilizzando i valori originali delle regioni.
+ */
 function original_structure(s, type_structure){
 	
 	var st;
@@ -2655,7 +2789,7 @@ function original_structure(s, type_structure){
 }
 
 /* COPY_REGIONS
- * s -> struttura da copiare
+ * s -> struttura delle regioni da copiare
  * 
  * Copia il vettore delle regioni che poi sara modificato
  * per scalare le dimensioni degli elementi
@@ -2679,7 +2813,7 @@ function copy_regions(s){
 }
 
 /* COPY_INFO_GENE
- * s -> struttura da copiare
+ * s -> struttura delle informazioni da copiare
  * 
  * Copia gli oggetti relativi alle informazione
  * sul gene.
@@ -2701,7 +2835,7 @@ function copy_info_gene(s){
  * 
  * Inizializza tutte le funzione per disegnare la struttura. 
  * Carica i dati dal file json relativo al gene selezionato.
- * Di default carica "ATP6AP1.json"
+ * Di default carica "ATP6AP1example2.json"
  */
 function init(){
     
@@ -2722,7 +2856,7 @@ function init(){
 	   original_regions = copy_regions(isoform.regions);
 	   //regioni
 	   x = isoform_range(isoform.regions);
-	   regions = regions_scaled(isoform.regions);
+	   regions = scaling_regions(isoform.regions);
 	
 	   display_gene();
 	
@@ -2741,8 +2875,8 @@ function init(){
 	   s_s_restruct = splice_site_structure(boundaries, regions);
 	  
 	   //disegna la struttura
-	   line_i = draw_introns(svg_box, introns_restruct, x);
-	   rect = draw_exons(svg_box, exons_restruct, x);
-	   s_s = draw_splice_sites(svg_box, s_s_restruct, x);	  	
+	   line_i = draw_introns(svg_isoform, introns_restruct, x);
+	   rect = draw_exons(svg_isoform, exons_restruct, x);
+	   s_s = draw_splice_sites(svg_isoform, s_s_restruct, x);	  	
     });
 }	
