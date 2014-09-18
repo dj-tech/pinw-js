@@ -401,10 +401,10 @@ function expande_box_range(reg, w_info){
 function legend_box(){
 	
 	//bordo della finestra SVG
-	var border_width = 8;
+	border_width = 8;
 	
     //dimensioni fisse degli elementi della legenda
-    var l_w = width_isoform - margin_isoform.right - margin_isoform.left - border_width;
+    l_w = width_isoform - margin_isoform.right - margin_isoform.left - border_width;
     var l_h = 250;
     var off_set = 80;
     var off_set_y = 35;
@@ -2283,7 +2283,7 @@ function draw_introns(box, introns, x_scale){
 						var regions = introns_select(x_scale, coord_x, line_introns);		
 						flag_exon = false;			  
 						info_structure = check_structure_element(regions, coord_x, line_introns);  	
-						display_info(svg_info, x_scale, info_structure, line_introns, x_scale);
+						display_info(svg_expande, x_scale, info_structure, line_introns, x_scale);
 						sequence_box(box, info_structure);
 						d3.select("#expande_box")
 							.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
@@ -2686,6 +2686,7 @@ function display_gene(){
     
     //variabile per il titolo
     var title = ""; 
+    var t_w = width - l_w - margin_isoform.left - margin_isoform.right - border_width;
     title = title.concat(original_info.gene + " gene structure");
     
     //oggeto per il posizionamento
@@ -2700,7 +2701,7 @@ function display_gene(){
     //altezza finestra
     var svg_height = 50; 
     //dichiarazione finestra SVG per il titolo
-    var svg_title = set_svg("title", (width - width_isoform - 200), svg_height, pos_title);
+    var svg_title = set_svg("title", t_w, svg_height, pos_title);
     
     svg_title.append("text")
        .attr("id", "title")
@@ -2716,7 +2717,7 @@ function display_gene(){
        .style("opacity", "1.0");
       
 	svg_title.append("text")
-       .attr("x", 425)
+       .attr("x", 525)
        .attr("y", 15)
        .style("font-family", "Arial, Helvetica, sans-serif")
        .style("font-size", "12px")
@@ -2730,7 +2731,7 @@ function display_gene(){
        .style("opacity", "1.0");
        
     svg_title.append("text")
-       .attr("x", 425)
+       .attr("x", 525)
        .attr("y", 30)
        .style("font-family", "Arial, Helvetica, sans-serif")
        .style("font-size", "12px")
@@ -2744,8 +2745,8 @@ function display_gene(){
        .style("opacity", "1.0");
     
     svg_title.append("text")
-       .attr("x", 425)
-       .attr("y", 45)
+       .attr("x", 725)
+       .attr("y", 15)
        .style("font-family", "Arial, Helvetica, sans-serif")
        .style("font-size", "12px")
        .style("fill", color_gene)
