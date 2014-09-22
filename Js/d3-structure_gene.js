@@ -2886,7 +2886,7 @@ function init(){
 	
     
     //stringa per il pathname del file json
-    var string = "Json/";
+    var string = "Json_file/";
     string = string.concat(selection.property("value"), ".json");
     
     //carica i dati contenuti nel file json e richiama le funzioni per disegnare la struttura
