@@ -1,4 +1,11 @@
 
+/* D3 Inteface of structure gene (https://bitbucket.org/Andre_T)
+ * 
+ * Copyright (C) 2014 Andrea Tornaghi
+ * Licensed under GPLv3 (http://www.gnu.org/licenses/gpl.html)
+ */
+
+
 //margini
 var margin_isoform = {top: 100, right: 15, bottom: 15, left: 10};
 
@@ -795,21 +802,30 @@ function buttons(){
 	//bottone per cancellare il contenuto della finestra della struttura
 	// espansa e riattivare la struttura del gene    
     d3.select("body").append("button")
-        .attr("id", "clear_button")
-        .attr("class", "btn-success")
+        .attr("id", "reset_button")
+        .attr("class", "btn btn-success")
+        .attr("data-toggle", "button")
         .style("font-size", "18px")
         .text("Reset")
-        .style("top", "74px")
+        .style("top", "68px")
         .style("left", function () { return (width - width_isoform + margin_isoform.left + 210) + "px"; })
         .style("position", "absolute")
-        .on("click", remove_element_expande_box);
+        .on("click", function() {
+        				remove_element_expande_box();
+        				//riporta la struttura genica alle dimensioni originali
+        				zoom_isoform.translate([0, 0]).scale(1);
+        				svg_isoform.transition()
+        					.duration(d)
+        					.attr("transform", "translate(" + zoom_isoform.translate() + ")scale(" + zoom_isoform.scale() + ")");
+        				d3.select("#zoom_button_on")
+        					.style("color", "white"); });
    
    d3.select("body").append("button")
         .attr("id", "zoom_button_on")
-        .attr("class", "btn-success")
+        .attr("class", "btn btn-success")
         .style("font-size", "18px")
         .text("Zoom On")
-        .style("top", "74px")
+        .style("top", "68px")
         .style("left", function () { return (width - width_isoform + margin_isoform.left + 10) + "px"; })
         .style("position", "absolute")
         .on("click", function() {
@@ -859,10 +875,10 @@ function buttons(){
    
    d3.select("body").append("button")
         .attr("id", "zoom_button_off")
-        .attr("class", "btn-success")
+        .attr("class", "btn btn-success")
         .style("font-size", "18px")
         .text("Zoom Off")
-        .style("top", "74px")
+        .style("top", "68px")
         .style("left", function () { return (width - width_isoform + margin_isoform.left + 110) + "px"; })
         .style("position", "absolute")
         .on("click", function(){
@@ -1413,13 +1429,20 @@ function display_info(s_i, x_iso, elements, r){
         					.text("End: " + o_s.exons[d.id].end);
         				d3.select("#modal_body").append("p")
         					.text("Annotated: " + d.annotated);
-        				d3.select("#modal_body").append("p")
-        					.text("Sequence: " + d.sequence);
+        				if(d.sequence.length < 50)	
+        					d3.select("#modal_body").append("p")
+        						.text("Sequence: " + d.sequence);
+        				else
+        					d3.select("#modal_body").append("p")
+        						.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
+        						.append("p")
+        						.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
         				d3.select("#modal_body").append("p")
         					.text("Alternative: " + d.alternative);
         				d3.select("#modal_body").append("p")
         					.text("Region: " + d.regions);
        					$("#myModal").modal('show');
+       					
        			 	})
         .transition()
         .duration(750)
@@ -1508,8 +1531,14 @@ function display_info(s_i, x_iso, elements, r){
         							.text("Suffix: " + d.suffix);
         						d3.select("#modal_body").append("p")
         							.text("Pattern: " + d.pattern);
-        						d3.select("#modal_body").append("p")
-        							.text("Sequence: " + d.sequence);
+        						if(d.sequence.length < 50)	
+        							d3.select("#modal_body").append("p")
+        								.text("Sequence: " + d.sequence);
+        						else
+        							d3.select("#modal_body").append("p")
+        								.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
+        								.append("p")
+        								.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
         						d3.select("#modal_body").append("p")
         							.text("Region: " + d.regions);
        							$("#myModal").modal('show');
@@ -1688,7 +1717,7 @@ function display_info_stripe(s_i, x_iso, elements, r){
         .style("opacity", "0.0")
         .attr("transform", transf.t_e)
         .on("mouseover", function(d) { 
-        					d3.select(this).style('cursor', 'crosshair');
+        					d3.select(this).style('cursor', 'context-menu');
                             var s = element_selected_exon(r, x(d.start), x(d.end)); 
                             
                             seq_id = "#sequence_ex_" + d.id;
@@ -1722,8 +1751,14 @@ function display_info_stripe(s_i, x_iso, elements, r){
         					.text("End: " + o_s.exons[d.id].end);
         				d3.select("#modal_body").append("p")
         					.text("Annotated: " + d.annotated);
-        				d3.select("#modal_body").append("p")
-        					.text("Sequence: " + d.sequence);
+        				if(d.sequence.length < 50)	
+        					d3.select("#modal_body").append("p")
+        						.text("Sequence: " + d.sequence);
+        				else
+        					d3.select("#modal_body").append("p")
+        						.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
+        						.append("p")
+        						.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
         				d3.select("#modal_body").append("p")
         					.text("Alternative: " + d.alternative);
         				d3.select("#modal_body").append("p")
@@ -1749,7 +1784,7 @@ function display_info_stripe(s_i, x_iso, elements, r){
 			.style("stroke-width", 8)
 			.style("opacity", "0.0")
 			.on("mouseover", function(d, i) { 
-                                d3.select(this).style('cursor', 'crosshair');
+                                d3.select(this).style('cursor', 'context-menu');
                                 var s = element_selected_intron(x(d.start), x(d.end));
 
                                 var tf_info_text = d3.svg.transform()
@@ -1805,8 +1840,14 @@ function display_info_stripe(s_i, x_iso, elements, r){
         							.text("Suffix: " + d.suffix);
         						d3.select("#modal_body").append("p")
         							.text("Pattern: " + d.pattern);
-        						d3.select("#modal_body").append("p")
-        							.text("Sequence: " + d.sequence);
+        						if(d.sequence.length < 50)	
+        							d3.select("#modal_body").append("p")
+        								.text("Sequence: " + d.sequence);
+        						else
+        							d3.select("#modal_body").append("p")
+        								.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
+        								.append("p")
+        								.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
         						d3.select("#modal_body").append("p")
         							.text("Region: " + d.regions);
        							$("#myModal").modal('show');
@@ -1992,6 +2033,8 @@ function check_structure_element(regions_info, c, r_e){
             element.i_i.push(introns_restruct[i]);
         d3.select("#i_e_" + introns_restruct[i].id).remove();
     }
+    
+    console.log(element.i_i);
     
     //elementi.i_i è NULL se nella selezione non sono presenti gli introni
     if(element.i_i != null)
@@ -2248,11 +2291,12 @@ function draw_introns(box, introns, x_scale){
 		.style("stroke-width", 6)
 		.on("click", function(d){
 			
-						//aggiorna la selezione
 						if(flag_structure == true){
 					      d3.selectAll("#exon_s")
-					      	.remove();					
-					    }
+					      	.remove();	
+					      d3.selectAll("#intron_s")
+					      	.remove();				
+					   }
 					   	
 					   	//colora di grigio la struttura per evidenziare
 					   	//la selezione degli elementi 	   
@@ -2640,10 +2684,10 @@ function select_gene(){
       
     //menù 'select' per la selezione del gene da visualizzare
     var s_g = d3.select("body").append("g");
-    s_g.style("top", "40px")
+    s_g.style("top", "35px")
        .style("left", function () { return (width - width_isoform + margin_isoform.left + 10) + "px"; })
        .style("position", "absolute");
-    s_g.html(function() { return '<select class="btn-success"><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
+    s_g.html(function() { return '<select class="btn btn-success"><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
     							   '<option value="ATP6AP1example2">ATP6AP1_ex2</option>' +
                                    '<option value="ATP6AP1example3">ATP6AP1_ex3</option>' + 
                                    '</select>'; }); 
@@ -2839,6 +2883,7 @@ function copy_info_gene(s){
  * Di default carica "ATP6AP1example2.json"
  */
 function init(){
+	
     
     //stringa per il pathname del file json
     var string = "Json/";
