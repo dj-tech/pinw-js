@@ -1149,6 +1149,9 @@ mark,
 .text-capitalize {
   text-transform: capitalize;
 }
+.text-seq{
+  color: #000000;
+}
 .text-muted {
   color: #777;
 }

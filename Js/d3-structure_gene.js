@@ -136,11 +136,13 @@ function exons_structure (extract_exons, extract_regions, extract_boundary) {
 					"sequence" : exon_prop.seq,
 					"regions" : reg,
 					"alternative" : exon_prop.flag_alt,
-					"annotated" : exon_prop.annot
+					"annotated" : exon_prop.annot,
+					"length" : (end_exon - start_exon) + " bp"
 			});
 			reg = [];
 		}
 	}
+	console.log(exons);
 	return exons;	
 }
 
@@ -209,7 +211,7 @@ function introns_structure(extract_introns, extract_regions, extract_boundary){
 				intron_prop.flag_intron_ok = false;	
 			if((extract_boundary[intron_prop.r_b].type ==  "3") | (extract_boundary[intron_prop.r_b].type == "both")){
 				if((boundary_prop.t_r_r == "codifying") & (boundary_prop.a_r_r == true))
-					end_intron = region_prop.r_r.start;
+					end_intron = region_prop.r_r.end;
 				else
 					if(boundary_prop.t_r_r == "spliced")
 						end_intron = region_prop.r_r.end;
@@ -253,7 +255,8 @@ function introns_structure(extract_introns, extract_regions, extract_boundary){
 					"prefix" : extract_introns[i].prefix,
 					"pattern" : intron_prop.pattern,
 					"regions" : reg,
-					"id" : i
+					"id" : i,
+					"length" : (end_intron - start_intron) + " bp"
 			});
 			reg = [];		
 		}	
@@ -961,20 +964,7 @@ function svg_expande_box(){
     //se il mouse si trova sopra la finestra della struttura espansa
     //nella finestra della struttura genica vengono visualizzati
     //gli elementi selezionati al click del mouse
-    s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; })
-    	.on("mouseover", function() {
-    						d3.selectAll("#exon_s")
-    							.attr("visibility", "visible");
-    						d3.selectAll("#intron_s")
-    							.attr("visibility", "visible");
-    	})
-    	.on("mouseout", function(){
-    						d3.selectAll("#exon_s")
-    							.attr("visibility", "hidden");
-    						d3.selectAll("#intron_s")
-    							.attr("visibility", "hidden");
-
-    	});
+    s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; });
     
     return s_i;
 }
@@ -1035,43 +1025,12 @@ function exons_select(x, c_x, r_e){
     	.style("border-color", function() { return "rgb(189, 195, 199)"; });
 	d3.select("#isoform")
 		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-		
-	var reg_ext = [];
-	for(g = 0; g < exons_restruct.length; g++){
-		if((c_x > (exons_restruct[g].start)) & (c_x < (exons_restruct[g].end))){
-			reg_ext = reg_ext.concat(exons_restruct[g].regions);	
-		}
-	}
 	
-	//rimozione dei duplicati nell'array delle regioni
-	reg_ext = remove_duplicate(reg_ext);
-	
-	var splice_select = [];
-	var s, e;
-	
-	//selezione degli splice sites corrispondenti alle coordinate
-	for(l = 0; l < reg_ext.length; l++){
-		s = regions[reg_ext[l]].start;
-		sl = regions[reg_ext[l]].start - 1;
-		e = regions[reg_ext[l]].end;
-		em = regions[reg_ext[l]].end + 1;
-		for(h = 0; h < s_s_restruct.length; h++){
-			if((s_s_restruct[h].position == s) | (s_s_restruct[h].position == e))
-				splice_select.push(s_s_restruct[h]);
-			if((s_s_restruct[h].position == sl) | (s_s_restruct[h].position == em))
-				splice_select.push(s_s_restruct[h]);
-		}
-	}
-	
-	for(l = 0; l < splice_select.length; l++){
-		d3.select("#s_s_" + splice_select[l].id)
-			.style("stroke-width", "1.5px")
-			.style("stroke", d3.rgb("blue").brighter(3));
-		d3.select("#up_" + (splice_select[l].id))
-            .style("stroke", "black");
-        d3.select("#down_" + (splice_select[l].id))
-        	.style("stroke", "black");
-	}               	
+	var reg_ext;
+	for(g = 0; g < regions.length; g++)
+		if((c_x > (regions[g].start)) & (c_x < (regions[g].end)))
+			reg_ext = regions[g];
+			        	
 	return reg_ext;
 }
 
@@ -1131,41 +1090,11 @@ function introns_select(x, c_x, r_e){
 	d3.select("#isoform")
 		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
 		
-	var reg_ext = [];
-	for(g = 0; g < introns_restruct.length; g++){
-		if((c_x > (introns_restruct[g].start)) & (c_x < (introns_restruct[g].end))){
-			reg_ext = reg_ext.concat(introns_restruct[g].regions);	
-		}
-	}
-	
-	//rimozione dei duplicati nell'array delle regioni
-	reg_ext = remove_duplicate(reg_ext);
-	
-	var splice_select = [];
-	var s, e;
-	
-	//selezione degli splice sites corrispondenti alle coordinate
-	for(l = 0; l < reg_ext.length; l++){
-		s = regions[reg_ext[l]].start;
-		sl = regions[reg_ext[l]].start - 1;
-		e = regions[reg_ext[l]].end;
-		em = regions[reg_ext[l]].end + 1;
-		for(h = 0; h < s_s_restruct.length; h++){
-			if((s_s_restruct[h].position == s) | (s_s_restruct[h].position == e))
-				splice_select.push(s_s_restruct[h]);
-			if((s_s_restruct[h].position == sl) | (s_s_restruct[h].position == em))
-				splice_select.push(s_s_restruct[h]);
-		}
-	}
-	
-	for(l = 0; l < splice_select.length; l++){
-		d3.select("#s_s_" + splice_select[l].id)
-			.style("stroke", "blue");
-		d3.select("#up_" + (splice_select[l].id))
-            .style("stroke", "black");
-        d3.select("#down_" + (splice_select[l].id))
-        	.style("stroke", "black");
-	}               	
+	var reg_ext;
+	for(g = 0; g < regions.length; g++)
+		if((c_x > (regions[g].start)) & (c_x < (regions[g].end)))
+			reg_ext = regions[g];	
+			         	
 	return reg_ext;
 }
 
@@ -1298,8 +1227,8 @@ function element_selected_intron(s, e){
 		.attr("y1", 35)
 		.attr("x2", e)
 		.attr("y2", 35)
-		.style("stroke", "black")
-		.style("stroke-width", 6);
+		.style("stroke", function() { return d3.rgb("black").brighter(3); })
+		.style("stroke-width", 8);
 		
 	return intron_selected;
 }
@@ -1331,6 +1260,8 @@ function display_info(s_i, x_iso, elements, r){
 		exons : original_structure(original_regions, 'exon'),
 		introns: original_structure(original_regions, 'intron')
 	};
+	
+	console.log(o_s.exons);
 	
     //colori degli elementi
     var color_exon = function() { return d3.rgb("#228B22"); };
@@ -1428,19 +1359,13 @@ function display_info(s_i, x_iso, elements, r){
         				d3.select("#modal_body").append("p")
         					.text("End: " + o_s.exons[d.id].end);
         				d3.select("#modal_body").append("p")
+        					.text("Length: " + o_s.exons[d.id].length);
+        				d3.select("#modal_body").append("p")
         					.text("Annotated: " + d.annotated);
-        				if(d.sequence.length < 50)	
-        					d3.select("#modal_body").append("p")
-        						.text("Sequence: " + d.sequence);
-        				else
-        					d3.select("#modal_body").append("p")
-        						.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
-        						.append("p")
-        						.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
+        				
         				d3.select("#modal_body").append("p")
         					.text("Alternative: " + d.alternative);
-        				d3.select("#modal_body").append("p")
-        					.text("Region: " + d.regions);
+        				
        					$("#myModal").modal('show');
        					
        			 	})
@@ -1456,11 +1381,15 @@ function display_info(s_i, x_iso, elements, r){
 			.attr("id", function(d) { return "i_e_" + d.id; })
 			.attr("x1", function(d) { return x_iso(d.start); })
 			.attr("y1", 35)
-			.attr("x2", function(d) { return x_iso(d.end); })
+			.attr("x2", function(d) { 
+							if((x_iso(d.end) - x_iso(d.start)) < 10)
+								return x_iso(d.end) + 40;
+							else
+								return x_iso(d.end); })
 			.attr("y2", 35)
 			.attr("transform", transf.t_i)
 			.style("stroke", color_intron)
-			.style("stroke-width", 8)
+			.style("stroke-width", 10)
 			.style("opacity", "0.0")
             .on("mouseover", function(d, i) { 
                                 d3.select(this).style('cursor', 'context-menu');
@@ -1526,21 +1455,26 @@ function display_info(s_i, x_iso, elements, r){
         						d3.select("#modal_body").append("p")
         							.text("End: " + o_s.introns[d.id].end);
         						d3.select("#modal_body").append("p")
-        							.text("Prefix: " + d.prefix);
+        							.text("Length: " + o_s.introns[d.id].length);
         						d3.select("#modal_body").append("p")
-        							.text("Suffix: " + d.suffix);
+        							.append("text")
+        							.text("Prefix: ")
+        							.append("text")
+        							.attr("class", "text-primary")
+        							.text(d.prefix.substring(0,2).toUpperCase())
+        							.append("text")
+        							.attr("class", "text-seq")
+        							.text(d.prefix.substring(2,d.prefix.length).toUpperCase());
         						d3.select("#modal_body").append("p")
-        							.text("Pattern: " + d.pattern);
-        						if(d.sequence.length < 50)	
-        							d3.select("#modal_body").append("p")
-        								.text("Sequence: " + d.sequence);
-        						else
-        							d3.select("#modal_body").append("p")
-        								.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
-        								.append("p")
-        								.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
-        						d3.select("#modal_body").append("p")
-        							.text("Region: " + d.regions);
+        							.append("text")
+        							.text("Suffix: ")
+        							.append("text")
+        							.attr("class", "text-seq")
+        							.text(d.suffix.substring(0,d.suffix.length-3).toUpperCase())
+        							.append("text")
+        							.attr("class", "text-primary") 
+        							.text(d.suffix.substring(d.suffix.length-2,d.suffix.length).toUpperCase());
+        						
        							$("#myModal").modal('show');
        			 		})
             .transition()
@@ -1750,19 +1684,13 @@ function display_info_stripe(s_i, x_iso, elements, r){
         				d3.select("#modal_body").append("p")
         					.text("End: " + o_s.exons[d.id].end);
         				d3.select("#modal_body").append("p")
+        					.text("Length: " + o_s.exons[d.id].length);
+        				d3.select("#modal_body").append("p")
         					.text("Annotated: " + d.annotated);
-        				if(d.sequence.length < 50)	
-        					d3.select("#modal_body").append("p")
-        						.text("Sequence: " + d.sequence);
-        				else
-        					d3.select("#modal_body").append("p")
-        						.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
-        						.append("p")
-        						.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
+        				
         				d3.select("#modal_body").append("p")
         					.text("Alternative: " + d.alternative);
-        				d3.select("#modal_body").append("p")
-        					.text("Region: " + d.regions);
+        					
        					$("#myModal").modal('show');
        			 	})
         .transition()
@@ -1777,7 +1705,11 @@ function display_info_stripe(s_i, x_iso, elements, r){
 			.attr("id", function(d) { return "i_e_" + d.id; })
 			.attr("x1", function(d) { return x_iso(d.start); })
 			.attr("y1", 35)
-			.attr("x2", function(d) { return x_iso(d.end); })
+			.attr("x2", function(d) { 
+							if((x_iso(d.end) - x_iso(d.start)) < 10)
+								return x_iso(d.end) + 40;
+							else
+								return x_iso(d.end); })
 			.attr("y2", 35)
 			.attr("transform", transf.t_i)
 			.style("stroke", color_intron)
@@ -1835,21 +1767,26 @@ function display_info_stripe(s_i, x_iso, elements, r){
         						d3.select("#modal_body").append("p")
         							.text("End: " + o_s.introns[d.id].end);
         						d3.select("#modal_body").append("p")
-        							.text("Prefix: " + d.prefix);
+        							.text("Length: " + o_s.introns[d.id].length);
         						d3.select("#modal_body").append("p")
-        							.text("Suffix: " + d.suffix);
+        							.append("text")
+        							.text("Prefix: ")
+        							.append("text")
+        							.attr("class", "text-primary")
+        							.text(d.prefix.substring(0,2).toUpperCase())
+        							.append("text")
+        							.attr("class", "text-seq")
+        							.text(d.prefix.substring(2,d.prefix.length).toUpperCase());
         						d3.select("#modal_body").append("p")
-        							.text("Pattern: " + d.pattern);
-        						if(d.sequence.length < 50)	
-        							d3.select("#modal_body").append("p")
-        								.text("Sequence: " + d.sequence);
-        						else
-        							d3.select("#modal_body").append("p")
-        								.text("Sequence: " + d.sequence.slice(0,d.sequence.length/2))
-        								.append("p")
-        								.text(d.sequence.slice(d.sequence.length/2,d.sequence.length));
-        						d3.select("#modal_body").append("p")
-        							.text("Region: " + d.regions);
+        							.append("text")
+        							.text("Suffix: ")
+        							.append("text")
+        							.attr("class", "text-seq")
+        							.text(d.suffix.substring(0,d.suffix.length-3).toUpperCase())
+        							.append("text")
+        							.attr("class", "text-primary") 
+        							.text(d.suffix.substring(d.suffix.length-2,d.suffix.length).toUpperCase());
+        							
        							$("#myModal").modal('show');
        			 		})
             .transition()
@@ -2005,39 +1942,40 @@ function pattern_exons(){
  * alle coordinate della selezione. Restituisce una struttura contenente
  * gli array degli esoni e introni trovati.
  */
-function check_structure_element(regions_info, c, r_e){
-	
+function check_structure_element(regions_ext, c, r_e){
+		
     //elementi che verranno estratti dalla selezione 
     var element = {
     	r_i : [],
     	i_i : [],
     };
     
+    var splice_select = [];
+	var s, e;
+    
     //il click della selezione è stato fatto sopra un esone
     if(flag_exon == true){
     	//ricerca gli esoni contengono almeno una regione che compone
     	//l'esone selezionato
-    	for(rg = 0; rg < regions_info.length; rg++)
     		for(re = 0; re < exons_restruct.length; re++)
     			for(ra = 0; ra < exons_restruct[re].regions.length; ra++)
-    				if(regions_info[rg] == exons_restruct[re].regions[ra])
+    				if(regions_ext.id == exons_restruct[re].regions[ra])
         				element.r_i.push(exons_restruct[re]);
     	
     	//rimuove i duplicati tra gli esoni trovati
     	element.r_i = remove_duplicate(element.r_i);
     }
-    
+        
     //ricerca degli introni
-    for(i = 0; i < introns_restruct.length; i++){
-        if((c >= introns_restruct[i].start) & (c <= introns_restruct[i].end))
-            element.i_i.push(introns_restruct[i]);
+    for(i = 0; i < introns_restruct.length; i++)
+    	for(ra = 0; ra < introns_restruct[i].regions.length; ra++){
+			if(+regions_ext.id == introns_restruct[i].regions[ra])            
+				element.i_i.push(introns_restruct[i]);
         d3.select("#i_e_" + introns_restruct[i].id).remove();
-    }
-    
-    console.log(element.i_i);
-    
+    	}
+
     //elementi.i_i è NULL se nella selezione non sono presenti gli introni
-    if(element.i_i != null)
+    if(element.i_i != null){
 		for(rs = 0; rs < element.i_i.length; rs++)
     		r_e.append("line")
 				.attr("id", "intron_s")
@@ -2045,22 +1983,62 @@ function check_structure_element(regions_info, c, r_e){
 				.attr("y1", 35)
 				.attr("x2", function(d) { return x(element.i_i[rs].end); })
 				.attr("y2", 35)
-				.attr("visibility", "hidden")
 				.style("stroke", "black")
 				.style("stroke-width", 6);
+		//selezione degli splice sites corrispondenti alle coordinate
+		for(l = 0; l < element.i_i.length; l++){
+			s = element.i_i[l].start;
+			sl = element.i_i[l].start - 1;
+			e = element.i_i[l].end;
+			em = element.i_i[l].end + 1;
+			for(h = 0; h < s_s_restruct.length; h++){
+				if((s_s_restruct[h].position == s) | (s_s_restruct[h].position == e))
+					splice_select.push(s_s_restruct[h]);
+				if((s_s_restruct[h].position == sl) | (s_s_restruct[h].position == em))
+					splice_select.push(s_s_restruct[h]);
+			}
+		}
+	}
     
-    //elementi selezionati sulla struttura genica
-    for(rs = 0; rs < element.r_i.length; rs++)
-    	r_e.append("rect")
-			.attr("id", "exon_s")
-			.attr("x", x(element.r_i[rs].start))
-        	.attr("y", 0)
-			.attr("width", function() { return x(element.r_i[rs].end) - x(element.r_i[rs].start) - 1; })
-			.attr("height", "75")
-			.attr("rx", 3)
-			.attr("ry", 3)
-			.attr("visibility", "hidden")
-			.style("fill", function() {	return d3.rgb("#228B22"); });
+    if(element.r_i != null){
+    	//elementi selezionati sulla struttura genica
+    	for(rs = 0; rs < element.r_i.length; rs++)
+    		r_e.append("rect")
+				.attr("id", "exon_s")
+				.attr("x", x(element.r_i[rs].start))
+        		.attr("y", 0)
+				.attr("width", function() { return x(element.r_i[rs].end) - x(element.r_i[rs].start) - 1; })
+				.attr("height", "75")
+				.attr("rx", 3)
+				.attr("ry", 3)
+				.style("fill", function() {	return d3.rgb("#228B22"); });
+	
+		//selezione degli splice sites corrispondenti alle coordinate
+		for(l = 0; l < element.r_i.length; l++){
+			s = element.r_i[l].start;
+			sl = element.r_i[l].start - 1;
+			e = element.r_i[l].end;
+			em = element.r_i[l].end + 1;
+			for(h = 0; h < s_s_restruct.length; h++){
+				if((s_s_restruct[h].position == s) | (s_s_restruct[h].position == e))
+					splice_select.push(s_s_restruct[h]);
+				if((s_s_restruct[h].position == sl) | (s_s_restruct[h].position == em))
+					splice_select.push(s_s_restruct[h]);
+			}
+		}
+	}
+	
+	splice_select = remove_duplicate(splice_select);
+	
+	for(l = 0; l < splice_select.length; l++){
+		d3.select("#s_s_" + splice_select[l].id)
+			.style("stroke-width", "1.5px")
+			.style("stroke", d3.rgb("blue").brighter(3));
+		d3.select("#up_" + (splice_select[l].id))
+            .style("stroke", "black");
+        d3.select("#down_" + (splice_select[l].id))
+        	.style("stroke", "black");
+	}       
 	
     return element;   
 }
