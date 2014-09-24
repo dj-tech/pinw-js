@@ -5,7 +5,7 @@
  * Licensed under GPLv3 (http://www.gnu.org/licenses/gpl.html)
  */
 
-
+/*rgba(252,248,227,0.8);*/
 //margini
 var margin_isoform = {top: 100, right: 15, bottom: 15, left: 10};
 
@@ -782,12 +782,6 @@ function remove_element_expande_box(){
     	.style("opacity", "0.0")
     	.remove(); 
     
-    //ripristino struttura	
-    d3.select("#expande_box")
-    	.style("border-color", function() { return "rgb(189, 195, 199)"; });
-	d3.select("#isoform")
-		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; }); 
-   
     flag_structure = false;
     flag_sequence = false;
 }
@@ -806,12 +800,12 @@ function buttons(){
 	// espansa e riattivare la struttura del gene    
     d3.select("body").append("button")
         .attr("id", "reset_button")
-        .attr("class", "btn btn-success")
+        .attr("class", "btn btn-primary")
         .attr("data-toggle", "button")
-        .style("font-size", "18px")
+        .style("font-size", "14px")
         .text("Reset")
-        .style("top", "68px")
-        .style("left", function () { return (width - width_isoform + margin_isoform.left + 210) + "px"; })
+        .style("top", "30px")
+        .style("left", function () { return (width - width_isoform + margin_isoform.left + 175) + "px"; })
         .style("position", "absolute")
         .on("click", function() {
         				remove_element_expande_box();
@@ -825,11 +819,11 @@ function buttons(){
    
    d3.select("body").append("button")
         .attr("id", "zoom_button_on")
-        .attr("class", "btn btn-success")
+        .attr("class", "btn btn-primary")
         .style("font-size", "18px")
         .text("Zoom On")
-        .style("top", "68px")
-        .style("left", function () { return (width - width_isoform + margin_isoform.left + 10) + "px"; })
+        .style("top", "65px")
+        .style("left", function () { return (width - width_isoform + margin_isoform.left + 35) + "px"; })
         .style("position", "absolute")
         .on("click", function() {
         				//non compatibile con tutti i browser!
@@ -878,11 +872,11 @@ function buttons(){
    
    d3.select("body").append("button")
         .attr("id", "zoom_button_off")
-        .attr("class", "btn btn-success")
+        .attr("class", "btn btn-primary")
         .style("font-size", "18px")
         .text("Zoom Off")
-        .style("top", "68px")
-        .style("left", function () { return (width - width_isoform + margin_isoform.left + 110) + "px"; })
+        .style("top", "65px")
+        .style("left", function () { return (width - width_isoform + margin_isoform.left + 135) + "px"; })
         .style("position", "absolute")
         .on("click", function(){
         				//riporta la struttura genica alle dimensioni originali
@@ -961,9 +955,6 @@ function svg_expande_box(){
     
     //dichiara finestra SVG                               
     var s_i = set_svg("expande_box", s_w, s_h, p_s);
-    //se il mouse si trova sopra la finestra della struttura espansa
-    //nella finestra della struttura genica vengono visualizzati
-    //gli elementi selezionati al click del mouse
     s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; });
     
     return s_i;
@@ -1021,11 +1012,6 @@ function exons_select(x, c_x, r_e){
     	.style("opacity", "0.0")
     	.remove(); 
     	
-    d3.select("#expande_box")
-    	.style("border-color", function() { return "rgb(189, 195, 199)"; });
-	d3.select("#isoform")
-		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-	
 	var reg_ext;
 	for(g = 0; g < regions.length; g++)
 		if((c_x > (regions[g].start)) & (c_x < (regions[g].end)))
@@ -1084,11 +1070,6 @@ function introns_select(x, c_x, r_e){
     	.duration(750)
     	.style("opacity", "0.0")
     	.remove(); 
-    	
-    d3.select("#expande_box")
-    	.style("border-color", function() { return "rgb(189, 195, 199)"; });
-	d3.select("#isoform")
-		.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
 		
 	var reg_ext;
 	for(g = 0; g < regions.length; g++)
@@ -1279,13 +1260,13 @@ function display_info(s_i, x_iso, elements, r){
         	//.scale(function () { return [2, 1]; }),
         //traslazione contenitore elementi 
     	tf_g : d3.svg.transform()
-        	.translate(function (d, i) { return [15, 20]; }),
+        	.translate(function () { return [10, 20]; }),
         tf_table_title : d3.svg.transform()
-        	.translate(function (d, i) { return [start_table, 0]; }),
+        	.translate(function () { return [start_table, 0]; }),
         tf_table_start : d3.svg.transform()
-        	.translate(function (d, i) { return [start_table, 45]; }),
+        	.translate(function () { return [start_table, 35]; }),
         tf_table_end : d3.svg.transform()
-        	.translate(function (d, i) { return [start_table, 45]; })
+        	.translate(function () { return [start_table, 35]; })
        };
     
     //tabella contenente le informazioni di "start" e "end" degli elementi
@@ -1324,10 +1305,11 @@ function display_info(s_i, x_iso, elements, r){
                             seq_id = "#sequence_ex_" + d.id;
                             //sequenza nucleotidica corrispondente
                             var t = d3.select(seq_id);
-                            t.style("fill", "#822222");
+                            t.style("fill", "#428bca");
                             connect_exon(s, t);
                             d3.selectAll("#text_" + d.id)
-                            	.style("fill", "#822222");
+                            	.style("fill", "#428bca");
+                            
                             })
         .on("mouseout", function(d) { 
                             d3.select(this).style('cursor', 'default');
@@ -1421,11 +1403,11 @@ function display_info(s_i, x_iso, elements, r){
                                 //sequenza nucleotidica
                                 seq_id = "#sequence_in_" + d.id;
                                 var t = d3.select(seq_id);
-                                t.style("fill", "#822222");
+                                t.style("fill", "#428bca");
                                 //link
                                 connect_intron(s, t);
                                 d3.selectAll("#text_" + d.id)
-                            	.style("fill", "#822222"); })
+                            		.style("fill", "#428bca"); })
             .on("mouseout", function(d) { 
             					//rimozione elemento selezionato
                                 d3.select(this).style('cursor', 'default');
@@ -1532,8 +1514,12 @@ function display_info(s_i, x_iso, elements, r){
     	.data(table_text)
     	.enter().append("text")
     	.attr("id", function(d) { return "text_" + d.id; })
-    	.attr("x", function(d,i) { return (column_start - (d.start.toString().length)); })
-    	.attr("y", 15)
+    	.attr("x", function(d, i) { return (column_start - (d.start.toString().length)); })
+    	.attr("y", function(d) { 
+    					if(d.pattern != null)
+    						return 25;
+    					else
+    						return 15; })
     	.attr("transform", function(d, i) { 
     						//la posizione del testo della tabella viene recuperata
     						//dall'elemento a cui corrisponde con l'attributo "transform"
@@ -1566,7 +1552,11 @@ function display_info(s_i, x_iso, elements, r){
     	.enter().append("text")
     	.attr("id", function(d) { return "text_" + d.id; })
     	.attr("x", function(d,i) { return (column_end - (d.start.toString().length)); })
-    	.attr("y", 15)
+    	.attr("y", function(d) { 
+    					if(d.pattern != null)
+    						return 25;
+    					else
+    						return 15; })
     	.attr("transform", function(d, i) { 
     						//la posizione del testo della tabella viene recuperata
     						//dall'elemento a cui corrisponde con l'attributo "transform"
@@ -1633,9 +1623,9 @@ function display_info_stripe(s_i, x_iso, elements, r){
            tf_table_title : d3.svg.transform()
             .translate(function (d, i) { return [start_table, 0]; }),
         tf_table_start : d3.svg.transform()
-            .translate(function (d, i) { return [start_table, 45]; }),
+            .translate(function (d, i) { return [start_table, 35]; }),
         tf_table_end : d3.svg.transform()
-            .translate(function (d, i) { return [start_table, 45]; })
+            .translate(function (d, i) { return [start_table, 35]; })
        };
        
     //esoni
@@ -1656,10 +1646,10 @@ function display_info_stripe(s_i, x_iso, elements, r){
                             
                             seq_id = "#sequence_ex_" + d.id;
                             var t = d3.select(seq_id);
-                            t.style("fill", "#822222");
+                            t.style("fill", "#428bca");
                             connect_exon(s, t);
                             d3.selectAll("#text_" + d.id)
-                            	.style("fill", "#822222");})
+                            	.style("fill", "#428bca");})
         .on("mouseout", function(d) { 
         					d3.select(this).style('cursor', 'default');
         					d3.select("#element_info_exon").remove();
@@ -1740,10 +1730,10 @@ function display_info_stripe(s_i, x_iso, elements, r){
                                     
                                 seq_id = "#sequence_in_" + d.id;
                                 var t = d3.select(seq_id);
-                                t.style("fill", "#822222");
+                                t.style("fill", "#428bca");
                                 connect_intron(s, t);
                                 d3.selectAll("#text_" + d.id)
-                            	.style("fill", "#822222"); })
+                            	.style("fill", "#428bca"); })
             .on("mouseout", function(d) { 
                                 d3.select(this).style('cursor', 'default');
                                 d3.select("#element_info_intron").remove();
@@ -1856,7 +1846,11 @@ function display_info_stripe(s_i, x_iso, elements, r){
         .enter().append("text")
         .attr("id", function(d) { return "text_" + d.id; })
     	.attr("x", function(d,i) { return (column_start - (d.start.toString().length)); })
-    	.attr("y", 15)
+    	.attr("y", function(d) { 
+    					if(d.pattern != null)
+    						return 25;
+    					else
+    						return 15; })
     	.attr("transform", function(d, i) { 
     						
     						if(d.pattern == null)
@@ -1887,7 +1881,11 @@ function display_info_stripe(s_i, x_iso, elements, r){
         .enter().append("text")
         .attr("id", function(d) { return "text_" + d.id; })
         .attr("x", function(d,i) { return (column_end - (d.start.toString().length)); })
-    	.attr("y", 15)
+    	.attr("y", function(d) { 
+    					if(d.pattern != null)
+    						return 25;
+    					else
+    						return 15; })
     	.attr("transform", function(d, i) { 
     						
     						if(d.pattern == null)
@@ -1950,7 +1948,7 @@ function check_structure_element(regions_ext, c, r_e){
     	i_i : [],
     };
     
-    var splice_select = [];
+    splice_select = [];
 	var s, e;
     
     //il click della selezione è stato fatto sopra un esone
@@ -2057,7 +2055,7 @@ function mouse_pos(xm, ym){
 		.attr("id", "cross_pos")
     	.attr("transform", function(d) { return "translate(" + xm + "," + ym + ")"; })
     	.attr("d", d3.svg.symbol().type("cross"))
-    	.style("fill", "red");
+    	.style("fill", "yellow");
 }
 
 /* DRAW_EXONS
@@ -2151,10 +2149,7 @@ function draw_exons(box, exons, x_scale){
 						  info_structure = check_structure_element(regions, coord_x, rect_exons);  	
 						  display_info(svg_expande, x_scale, info_structure, rect_exons);
 						  sequence_box(box, info_structure);
-						  d3.select("#expande_box")
-						  	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-						  d3.select("#isoform")
-						  	.style("border-color", function() { return "rgb(189, 195, 199)"; });    
+						      
         			      }
         			    flag_structure = true; })							  		
 		.on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
@@ -2221,10 +2216,7 @@ function draw_exons(box, exons, x_scale){
                        	info_structure = check_structure_element(regions, coord_x, rect_exons);  
                         display_info_stripe(svg_expande, x_scale, info_structure, rect_exons_stripe);
                         sequence_box(box, info_structure);
-                        d3.select("#expande_box")
-                        	.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-						d3.select("#isoform")
-						 	.style("border-color", function() { return "rgb(189, 195, 199)"; });
+                        
 						flag_structure = true; })                           
         .on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
         .on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
@@ -2307,10 +2299,7 @@ function draw_introns(box, introns, x_scale){
 						info_structure = check_structure_element(regions, coord_x, line_introns);  	
 						display_info(svg_expande, x_scale, info_structure, line_introns, x_scale);
 						sequence_box(box, info_structure);
-						d3.select("#expande_box")
-							.style("border-color", function() { return "rgba(34, 139, 34, 0.7)"; });
-						d3.select("#isoform")
-						  	.style("border-color", function() { return "rgb(189, 195, 199)"; });
+						
 						})
 		.on("mouseover", function() { d3.select(this).style('cursor', 'cell'); })
 		.on("mouseout", function() { d3.select(this).style('cursor', 'default'); })
@@ -2662,10 +2651,10 @@ function select_gene(){
       
     //menù 'select' per la selezione del gene da visualizzare
     var s_g = d3.select("body").append("g");
-    s_g.style("top", "35px")
-       .style("left", function () { return (width - width_isoform + margin_isoform.left + 10) + "px"; })
+    s_g.style("top", "30px")
+       .style("left", function () { return (width - width_isoform + margin_isoform.left + 35) + "px"; })
        .style("position", "absolute");
-    s_g.html(function() { return '<select class="btn btn-success"><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
+    s_g.html(function() { return '<select class="btn btn-primary"><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
     							   '<option value="ATP6AP1example2">ATP6AP1_ex2</option>' +
                                    '<option value="ATP6AP1example3">ATP6AP1_ex3</option>' + 
                                    '</select>'; }); 
@@ -2716,7 +2705,7 @@ function display_gene(){
     	pos : "absolute",
     	left : margin_isoform.left + "px",
     	right : margin_isoform.right + "px",
-    	top : "40px",
+    	top : "30px",
     	bottom : "10px"
     };
     
@@ -2737,10 +2726,11 @@ function display_gene(){
        .transition()
        .duration(1000)
        .style("opacity", "1.0");
-      
+    
+    	  
 	svg_title.append("text")
        .attr("x", 525)
-       .attr("y", 15)
+       .attr("y", 20)
        .style("font-family", "Arial, Helvetica, sans-serif")
        .style("font-size", "12px")
        .style("fill", color_gene)
@@ -2751,10 +2741,10 @@ function display_gene(){
        .transition()
        .duration(1000)
        .style("opacity", "1.0");
-       
+      
     svg_title.append("text")
        .attr("x", 525)
-       .attr("y", 30)
+       .attr("y", 40)
        .style("font-family", "Arial, Helvetica, sans-serif")
        .style("font-size", "12px")
        .style("fill", color_gene)
@@ -2767,8 +2757,8 @@ function display_gene(){
        .style("opacity", "1.0");
     
     svg_title.append("text")
-       .attr("x", 725)
-       .attr("y", 15)
+       .attr("x", 755)
+       .attr("y", 20)
        .style("font-family", "Arial, Helvetica, sans-serif")
        .style("font-size", "12px")
        .style("fill", color_gene)
