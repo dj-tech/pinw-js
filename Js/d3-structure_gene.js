@@ -137,12 +137,11 @@ function exons_structure (extract_exons, extract_regions, extract_boundary) {
 					"regions" : reg,
 					"alternative" : exon_prop.flag_alt,
 					"annotated" : exon_prop.annot,
-					"length" : (end_exon - start_exon) + " bp"
+					"length" : (end_exon - start_exon + 1) + " bp"
 			});
 			reg = [];
 		}
 	}
-	console.log(exons);
 	return exons;	
 }
 
@@ -256,7 +255,7 @@ function introns_structure(extract_introns, extract_regions, extract_boundary){
 					"pattern" : intron_prop.pattern,
 					"regions" : reg,
 					"id" : i,
-					"length" : (end_intron - start_intron) + " bp"
+					"length" : (end_intron - start_intron + 1) + " bp"
 			});
 			reg = [];		
 		}	
@@ -961,16 +960,13 @@ function svg_expande_box(){
 }
 
 
-/* EXONS_SELECT
- * x -> funzione per il range delle posizioni
+/* REGIONS_SELECT
  * c_x -> coordinate (piano X) della posizione del mouse
- * r_e -> contenitore degli esoni
  *
- * Seleziona l'esone che contiene le coordinate rimappate del mouse. 
- * In base alle coordinate seleziona gli spice sites corrispondenti e
- * e restituisce le regioni che compongono l'esone. 
+ * Seleziona la regione che contiene le coordinate rimappate del mouse. 
+ * Rimuove tutti gli elementi di una eventuale selezione precedente 
  */
-function exons_select(x, c_x, r_e){
+function regions_select(c_x){
 	
 	//ad ogni click viene visualizzata gli elementi selezionati
 	//senza resettare la struttura genica
@@ -1020,64 +1016,7 @@ function exons_select(x, c_x, r_e){
 	return reg_ext;
 }
 
-/* INTRONS_SELECT
- * x -> funzione per il range delle posizioni
- * c_x -> coordinate (piano X) della posizione del mouse
- * r_e -> contenitore degli introni
- *
- * Seleziona l'introne che contiene le coordinate rimappate del mouse. 
- * In base alle coordinate seleziona gli spice sites corrispondenti e
- * e restituisce le regioni che compongono l'introne. 
- */
-function introns_select(x, c_x, r_e){
-	
-	//ad ogni click viene visualizzata gli elementi selezionati
-	//senza resettare la struttura genica
-	d3.select("#regions_selected")
-		.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-		.remove();
-	
-	//rimozione sequenza nucleotidica
-	d3.select("#title_sequence_box")
-    	.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-    	.remove();    
-    d3.select("#sequence_ex")
-    	.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-    	.remove();
-    d3.select("#sequence_in")
-    	.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-    	.remove();
-    d3.select("#table_title")
-    	.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-    	.remove();
-    d3.select("#table_start")
-    	.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-    	.remove();
-    d3.select("#table_end")
-    	.transition()
-    	.duration(750)
-    	.style("opacity", "0.0")
-    	.remove(); 
-		
-	var reg_ext;
-	for(g = 0; g < regions.length; g++)
-		if((c_x > (regions[g].start)) & (c_x < (regions[g].end)))
-			reg_ext = regions[g];	
-			         	
-	return reg_ext;
-}
+
 
 /* ELEMENT_SELECTED_EXON
  * e_i -> elemento "esone" selezionato
@@ -2144,7 +2083,7 @@ function draw_exons(box, exons, x_scale){
 						  mouse_pos(xc, yc);
 						  
 						  //funzioni per gli elementi selezionati
-						  var regions = exons_select(x_scale, coord_x, rect_exons);
+						  var regions = regions_select(coord_x);
 						  flag_exon = true;					  
 						  info_structure = check_structure_element(regions, coord_x, rect_exons);  	
 						  display_info(svg_expande, x_scale, info_structure, rect_exons);
@@ -2211,7 +2150,7 @@ function draw_exons(box, exons, x_scale){
 						mouse_pos(xc, yc);
 						
 						//funzioni per gli elementi selezionati  
-						var regions = exons_select(x_scale, coord_x, rect_exons);
+						var regions = regions_select(coord_x);
 						flag_exon = true;
                        	info_structure = check_structure_element(regions, coord_x, rect_exons);  
                         display_info_stripe(svg_expande, x_scale, info_structure, rect_exons_stripe);
@@ -2294,7 +2233,7 @@ function draw_introns(box, introns, x_scale){
 						mouse_pos(xc, yc);
 						  
 						//funzioni per gli elementi selezionati
-						var regions = introns_select(x_scale, coord_x, line_introns);		
+						var regions = regions_select(coord_x);		
 						flag_exon = false;			  
 						info_structure = check_structure_element(regions, coord_x, line_introns);  	
 						display_info(svg_expande, x_scale, info_structure, line_introns, x_scale);
@@ -2659,6 +2598,14 @@ function select_gene(){
                                    '<option value="ATP6AP1example3">ATP6AP1_ex3</option>' + 
                                    '</select>'; }); 
     
+    var pos_box_pb = {
+    	pos: "absolute",
+    	left : "10px",
+    	right : "10px",
+    	top : "82px",
+    	bottom : "10px"
+    };
+   
     selection = d3.select("select")
             .on("change", change_gene);
     
