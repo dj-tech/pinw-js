@@ -17,11 +17,15 @@ var height_isoform = 250;
 
 //dimensioni fisse della finestra degli elementi selezionati (struttura espansa)
 var s_w = width - margin_isoform.left - margin_isoform.right;
-var s_h = 250;
+var s_h = 300;
 
 //flag per segnalare l'attivazione della struttura, dello zoom e 
 //della presenza della sequenza nucleotidica
 var flag_structure = false, flag_zoom = false, flag_sequence = false, flag_exon = true;
+
+//stringa per il pathname del file json
+var string_gene = "ATP6AP1";
+var default_structure = "ATP6AP1example2.json";
 
 //FUNZIONI AUSILIARIE
 //rimuove i duplicati da un array (indipendente dal tipo di elemento)
@@ -416,7 +420,7 @@ function legend_box(){
     l_w = width_isoform - margin_isoform.right - margin_isoform.left - border_width;
     var l_h = 250;
     var off_set = 80;
-    var off_set_y = 35;
+    var off_set_y = 25;
     var height_exon = 18;
     
     //durata e ritardo animazione
@@ -427,7 +431,7 @@ function legend_box(){
     	pos : "absolute", 
     	left : (width - width_isoform + margin_isoform.left + border_width) +  "px",
     	right : margin_isoform.right + "px",
-    	top: "110px", 
+    	top: "60px", 
     	bottom : "10px"
     };
        
@@ -470,7 +474,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Alternative exons")
+    	.text("Alternative region")
     	.transition()
 	    .delay(d)
 	    .duration(t)
@@ -508,7 +512,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Conservative exons")
+    	.text("Conservated region")
     	.transition()
 	    .delay(d)
 	    .duration(t)
@@ -595,7 +599,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Splice site 5'").transition()
+    	.text("5' Splice site").transition()
 	    .delay(d)
 	    .duration(t)
 	    .style("opacity", "1.0"); 
@@ -648,7 +652,62 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Splice site 3'").transition()
+    	.text("3' Splice site").transition()
+	    .delay(d)
+	    .duration(t)
+	    .style("opacity", "1.0");
+	    
+	 //tipologia esoni
+    s_l.append("rect")
+    	.attr("x", 0)
+    	.attr("y", off_set_y * 6.5)
+    	.attr("width", 40)
+    	.attr("height", height_exon)
+    	.attr("transform", tf_element)
+    	.style("fill", function() { return d3.rgb("#336699"); })
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(d)
+	    .duration(t)
+	    .style("opacity", "1.0");
+    s_l.append("text")
+    	.attr("x", off_set)
+    	.attr("y", off_set_y * 6.5 + height_exon/2)
+    	.style("font-size", "13px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.attr("transform", tf_text)
+    	.text("Exon")
+    	.transition()
+	    .delay(d)
+	    .duration(t)
+	    .style("opacity", "1.0");
+    
+    s_l.append("rect")
+    	.attr("x", 0)
+    	.attr("y", off_set_y * 7.5)
+    	.attr("width", 40)
+    	.attr("height", height_exon)
+    	.attr("transform", tf_element)
+    	.style("fill", function() { return d3.rgb("#336699"); })
+    	.style("stroke", function() { return d3.rgb("#00008B"); })
+    	.style("stroke-width", "3px")
+    	.style("opacity", "0.0")
+    	.transition()
+	    .delay(d)
+	    .duration(t)
+	    .style("opacity", "1.0");
+    s_l.append("text")
+    	.attr("x", off_set)
+    	.attr("y", height_exon/2 + off_set_y * 7.5)
+    	.style("font-size", "13px")
+    	.style("font-family", "Arial, Helvetica, sans-serif")
+    	.style("fill", "black")
+    	.style("opacity", "0.0")
+    	.attr("transform", tf_text)
+    	.text("Exon annotated")
+    	.transition()
 	    .delay(d)
 	    .duration(t)
 	    .style("opacity", "1.0");
@@ -667,6 +726,9 @@ function remove_element_expande_box(){
 	
 	//durata animazione
 	var t = 750;
+	
+	d3.select("#zoom_button_on")
+    	.attr("class", "btn btn-default");
 	
 	//rimozione segnalatore click del mouse
 	d3.selectAll("#cross_pos").remove();
@@ -797,15 +859,9 @@ function buttons(){
 	
 	//bottone per cancellare il contenuto della finestra della struttura
 	// espansa e riattivare la struttura del gene    
-    d3.select("body").append("button")
-        .attr("id", "reset_button")
-        .attr("class", "btn btn-primary")
-        .attr("data-toggle", "button")
-        .style("font-size", "14px")
-        .text("Reset")
-        .style("top", "30px")
-        .style("left", function () { return (width - width_isoform + margin_isoform.left + 175) + "px"; })
-        .style("position", "absolute")
+    d3.select("#reset_button") 
+    	.style("position", "relative")
+    	.style("top", "10px")   	
         .on("click", function() {
         				remove_element_expande_box();
         				//riporta la struttura genica alle dimensioni originali
@@ -813,17 +869,11 @@ function buttons(){
         				svg_isoform.transition()
         					.duration(d)
         					.attr("transform", "translate(" + zoom_isoform.translate() + ")scale(" + zoom_isoform.scale() + ")");
-        				d3.select("#zoom_button_on")
-        					.style("color", "white"); });
+        	});
    
-   d3.select("body").append("button")
-        .attr("id", "zoom_button_on")
-        .attr("class", "btn btn-primary")
-        .style("font-size", "18px")
-        .text("Zoom On")
-        .style("top", "65px")
-        .style("left", function () { return (width - width_isoform + margin_isoform.left + 35) + "px"; })
-        .style("position", "absolute")
+   d3.select("#zoom_button_on")
+   		.style("position", "relative")
+    	.style("top", "10px")
         .on("click", function() {
         				//non compatibile con tutti i browser!
         				svg_isoform.style("cursor", "zoom-in");
@@ -855,28 +905,16 @@ function buttons(){
         					.duration(d)
         					.style("opacity", "0.0");
         				
-        				//segnala lo zoom attivo	
         				d3.select("#zoom_button_on")
-        					.style("color", "steelblue");
-        				
-        				//rende visibili gli elementi aggiunti
-        				d3.selectAll("#exon_s")
-    							.attr("visibility", "visible");
-    						d3.selectAll("#intron_s")
-    							.attr("visibility", "visible");
+        					.attr("class", "btn btn-primary");
         					
         				flag_zoom = true;
         				zoom_isoform(svg_isoform); });
         
    
-   d3.select("body").append("button")
-        .attr("id", "zoom_button_off")
-        .attr("class", "btn btn-primary")
-        .style("font-size", "18px")
-        .text("Zoom Off")
-        .style("top", "65px")
-        .style("left", function () { return (width - width_isoform + margin_isoform.left + 135) + "px"; })
-        .style("position", "absolute")
+   d3.select("#zoom_button_off")
+   		.style("position", "relative")
+    	.style("top", "10px")
         .on("click", function(){
         				//riporta la struttura genica alle dimensioni originali
         				zoom_isoform.translate([0, 0]).scale(1);
@@ -910,15 +948,8 @@ function buttons(){
         					.duration(d)
         					.style("opacity", "1.0");
         				
-        				//rende invisibili gli elementi aggiunti	
-        				d3.selectAll("#exon_s")
-    							.attr("visibility", "hidden");
-    						d3.selectAll("#intron_s")
-    							.attr("visibility", "hidden");
-        				
-        				//segnala la disattivazione dello zoom
         				d3.select("#zoom_button_on")
-        					.style("color", "white");
+        					.attr("class", "btn btn-default");
         				
         				svg_isoform.style("cursor", "default");
         				
@@ -948,13 +979,14 @@ function svg_expande_box(){
     	pos : "absolute", 
     	left : "10px",
     	right : "10px",
-    	top: "380px", 
+    	top: "320px", 
     	bottom : "10px"
     };
     
     //dichiara finestra SVG                               
     var s_i = set_svg("expande_box", s_w, s_h, p_s);
-    s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; });
+    s_i.attr("viewbox", function() { return "0 0" + s_w + s_h; })
+    	.style("overflow-y", "auto");
     
     return s_i;
 }
@@ -1184,7 +1216,7 @@ function display_info(s_i, x_iso, elements, r){
 	console.log(o_s.exons);
 	
     //colori degli elementi
-    var color_exon = function() { return d3.rgb("#228B22"); };
+    var color_exon = function() { return d3.rgb("#336699"); };
     var color_intron = function() { return d3.rgb("black"); };
           
     //variabili per le operazioni di trasformazione 
@@ -1234,6 +1266,13 @@ function display_info(s_i, x_iso, elements, r){
         .attr("width", function(d) { return x_iso(d.end) - x_iso(d.start); })
         .attr("height", 40)
         .style("fill", color_exon)
+        .style("stroke", function(d){ 
+        					if(d.annotated == true)
+        						return d3.rgb("#00008B");
+        					else
+        						return d3.rgb("white");
+        					})
+        .style("stroke-width", "3px")			
         .style("opacity", "0.0")
         .attr("transform", transf.t_e)
         .on("mouseover", function(d) { 
@@ -1326,7 +1365,7 @@ function display_info(s_i, x_iso, elements, r){
                                     .style("font-size", "10px")
                                     .attr("transform", tf_info_text)
                                     .style("font-family", "Arial, Helvetica, sans-serif")
-                                    .style("fill", "black")
+                                    .style("fill", "#428bca")
                                     .text(d.pattern.slice(0,2).toUpperCase());
                                 g.append("text")
                                     .attr("x", x_iso(d.end))
@@ -1334,7 +1373,7 @@ function display_info(s_i, x_iso, elements, r){
                                     .style("font-size", "10px")
                                     .style("font-family", "Arial, Helvetica, sans-serif")
                                     .attr("transform", tf_info_text)
-                                    .style("fill", "black")
+                                    .style("fill", "#428bca")
                                     .text(d.pattern.slice(2,4).toUpperCase());
                                 
                                 //elemento selezionato sulla struttura genica    
@@ -1546,7 +1585,7 @@ function display_info_stripe(s_i, x_iso, elements, r){
     var column_start = 50, column_end = 200;
     
     //colori degli elementi
-    var color_exon = function() { return d3.rgb("#228B22"); };
+    var color_exon = function() { return d3.rgb("#336699"); };
     var color_intron = function() { return d3.rgb("black"); };
     
     var transf = {	
@@ -1577,6 +1616,13 @@ function display_info_stripe(s_i, x_iso, elements, r){
         .attr("width", function(d) { return x_iso(d.end) - x_iso(d.start); })
         .attr("height", 40)
         .style("fill", color_exon)
+        .style("stroke", function(d){ 
+        					if(d.annotated == true)
+        						return d3.rgb("#00008B");
+        					else
+        						return d3.rgb("white");
+        					})
+        .style("stroke-width", "3px")
         .style("opacity", "0.0")
         .attr("transform", transf.t_e)
         .on("mouseover", function(d) { 
@@ -1657,14 +1703,14 @@ function display_info_stripe(s_i, x_iso, elements, r){
                                     .attr("y", 38)
                                     .attr("font-size", "10px")
                                     .attr("transform", tf_info_text)
-                                    .style("fill", "black")
+                                    .style("fill", "#428bca")
                                     .text(d.pattern.slice(0,2).toUpperCase());
                                 g.append("text")
                                     .attr("x", x_iso(d.end))
                                     .attr("y", 38)
                                     .attr("font-size", "10px")
                                     .attr("transform", tf_info_text)
-                                    .style("fill", "black")
+                                    .style("fill", "#428bca")
                                     .text(d.pattern.slice(2,4).toUpperCase());
                                     
                                 seq_id = "#sequence_in_" + d.id;
@@ -2016,9 +2062,9 @@ function draw_exons(box, exons, x_scale){
 	
 	//colori per gli elementi
 	var color_exon = function() { return d3.rgb("#228B22"); };
-	var color_exon_after = function() { return d3.rgb("#808080"); };
+	var color_exon_after = function() { return d3.rgb("#D3D3D3"); };
     var color_intron = function() { return d3.rgb("black"); };
-    var color_intron_after = function() { return d3.rgb("#808080"); };
+    var color_intron_after = function() { return d3.rgb("#D3D3D3"); };
 	
 	//vettore di esoni 'conservative'
 	for(k = 0; k < exons.length; k++)
@@ -2079,7 +2125,7 @@ function draw_exons(box, exons, x_scale){
 						  //coordinate della posizione del mouse al momento del "click"
 						  var coord_x = x_scale.invert(d3.event.pageX - 25);
 						  var xc = d3.event.pageX - 15;
-						  var yc = d3.event.pageY - 110;
+						  var yc = d3.event.pageY - 60;
 						  mouse_pos(xc, yc);
 						  
 						  //funzioni per gli elementi selezionati
@@ -2146,7 +2192,7 @@ function draw_exons(box, exons, x_scale){
         		        //coordinate della posizione del mouse al momento del "click"       
                         var coord_x = x_scale.invert(d3.event.pageX - 25);
                         var xc = d3.event.pageX - 15;
-						var yc = d3.event.pageY - 110;
+						var yc = d3.event.pageY - 60;
 						mouse_pos(xc, yc);
 						
 						//funzioni per gli elementi selezionati  
@@ -2229,7 +2275,7 @@ function draw_introns(box, introns, x_scale){
                         //coordinate della posizione del mouse al momento del "click"
 						var coord_x = x_scale.invert(d3.event.pageX - 25);
 						var xc = d3.event.pageX - 15;
-						var yc = d3.event.pageY - 110;
+						var yc = d3.event.pageY - 60;
 						mouse_pos(xc, yc);
 						  
 						//funzioni per gli elementi selezionati
@@ -2549,7 +2595,7 @@ function scaling_regions(r){
  * richiamando nuovamente la funzione "init" per disegnare la nuova
  * struttura.
  */
-function change_gene(){
+function change_gene(gene){
     
     //durata animazioni
     var d = 450;
@@ -2557,16 +2603,15 @@ function change_gene(){
     //rimozione di tutti i box SVG
     var g = d3.select("#isoform").selectAll("g");
     g.remove();
-    
-    //rimozione del titolo
-    d3.select("#title").remove();
-    
+        
     //pulisce la finestra degli elementi selezionati
     remove_element_expande_box();
     
+    default_structure = gene;
+    
     //reinizializza la struttura
     init();
-    zoomListener.translate([0, 0]).scale(1);
+    zoom_isoform.translate([0, 0]).scale(1);
     svg_isoform.transition()
     	.duration(d)
         .attr("transform", "translate(" + zoomListener.translate() + ")scale(" + zoomListener.scale() + ")");  
@@ -2580,38 +2625,43 @@ function change_gene(){
 	svg_isoform.on("MozMousePixelScroll.zoom", null); 
 }
 
+function navigation_bar(){
+	
+	var d = 450;
+	
+	var h_g = d3.select("#home_gene");
+	h_g.text(string_gene + " gene structure");
+	
+	h_g.on("click", function(){ 
+						remove_element_expande_box();
+						//riporta la struttura genica alle dimensioni originali
+        				zoom_isoform.translate([0, 0]).scale(1);
+        				svg_isoform.transition()
+        					.duration(d)
+        					.attr("transform", "translate(" + zoom_isoform.translate() + ")scale(" + zoom_isoform.scale() + ")");
+						});
+	
+	d3.json("Json_file/config.json", function(error, list) {
+		
+		var dp_s = d3.select("#select_gene");
+		dp_s.selectAll("li")
+			.data(list.gene_structures)
+			.enter().append("li")
+			.append("a")
+				.attr("href", "#")
+	   			.text(function(d) { return d.name; })
+	   			.on("click", function(d) { change_gene(d.name); });
+	});
+}
 
-/* SELECT_GENE
+/* SETUP_INTERFACE
  * 
  * Crea il menù per selezionare il gene di cui visualizzare la struttura.
  * Inizializza le finestre di visualizzazione e chiama la funzione "init".
  */
-function select_gene(){
+function setup_interface(){
       
-    //menù 'select' per la selezione del gene da visualizzare
-    var s_g = d3.select("body").append("g");
-    s_g.style("top", "30px")
-       .style("left", function () { return (width - width_isoform + margin_isoform.left + 35) + "px"; })
-       .style("position", "absolute");
-    s_g.html(function() { return '<select class="btn btn-primary"><option value="ATP6AP1example1">ATP6AP1_ex1</option>' + 
-    							   '<option value="ATP6AP1example2">ATP6AP1_ex2</option>' +
-                                   '<option value="ATP6AP1example3">ATP6AP1_ex3</option>' + 
-                                   '</select>'; }); 
-    
-    var pos_box_pb = {
-    	pos: "absolute",
-    	left : "10px",
-    	right : "10px",
-    	top : "82px",
-    	bottom : "10px"
-    };
-   
-    selection = d3.select("select")
-            .on("change", change_gene);
-    
-    selection.property("value", "ATP6AP1example2");
-    
-    //texture esoni alternative
+    //texture esoni alternative  
     pattern_exons();
     
     //oggetto per la posizione della finestra della struttura
@@ -2619,11 +2669,11 @@ function select_gene(){
     	pos: "absolute",
     	left : "10px",
     	right : "10px",
-    	top : "110px",
+    	top : "60px",
     	bottom : "10px"
     };
-    svg_isoform = set_svg("isoform", width - width_isoform, height_isoform, pos_box);  
-         
+    svg_isoform = set_svg("isoform", width - width_isoform, height_isoform, pos_box); 
+        
     init();   
     
     svg_expande = svg_expande_box();  
@@ -2632,91 +2682,6 @@ function select_gene(){
     buttons();                       
 }
 
-
-/* DISPLAY_GENE
- * 
- * Visualizza il nome del gene di cui sarà visualizzata
- * la struttura.
- */
-function display_gene(){
-    
-    var color_gene = function() { return d3.rgb("black"); };
-    
-    //variabile per il titolo
-    var title = ""; 
-    var t_w = width - l_w - margin_isoform.left - margin_isoform.right - border_width;
-    title = title.concat(original_info.gene + " gene structure");
-    
-    //oggeto per il posizionamento
-    var pos_title = {
-    	pos : "absolute",
-    	left : margin_isoform.left + "px",
-    	right : margin_isoform.right + "px",
-    	top : "30px",
-    	bottom : "10px"
-    };
-    
-    //altezza finestra
-    var svg_height = 50; 
-    //dichiarazione finestra SVG per il titolo
-    var svg_title = set_svg("title", t_w, svg_height, pos_title);
-    
-    svg_title.append("text")
-       .attr("id", "title")
-       .attr("x", 10)
-       .attr("y", 35)
-       .style("font-family", "Arial, Helvetica, sans-serif")
-       .style("font-size", "30px")
-       .style("fill", color_gene)
-       .style("opacity", "0.0")
-       .text(title)
-       .transition()
-       .duration(1000)
-       .style("opacity", "1.0");
-    
-    	  
-	svg_title.append("text")
-       .attr("x", 525)
-       .attr("y", 20)
-       .style("font-family", "Arial, Helvetica, sans-serif")
-       .style("font-size", "12px")
-       .style("fill", color_gene)
-       .style("opacity", "0.0")
-       .text(function () { 
-       				var s = "sequence_id -> ";
-       				return s + original_info.sequence_id; })
-       .transition()
-       .duration(1000)
-       .style("opacity", "1.0");
-      
-    svg_title.append("text")
-       .attr("x", 525)
-       .attr("y", 40)
-       .style("font-family", "Arial, Helvetica, sans-serif")
-       .style("font-size", "12px")
-       .style("fill", color_gene)
-       .style("opacity", "0.0")
-       .text(function () { 
-       				var s = "program_version -> ";
-       				return s + original_info.program_version; })
-       .transition()
-       .duration(1000)
-       .style("opacity", "1.0");
-    
-    svg_title.append("text")
-       .attr("x", 755)
-       .attr("y", 20)
-       .style("font-family", "Arial, Helvetica, sans-serif")
-       .style("font-size", "12px")
-       .style("fill", color_gene)
-       .style("opacity", "0.0")
-       .text(function () { 
-       				var s = "file_format -> ";
-       				return s + original_info.file_format_version; })
-       .transition()
-       .duration(1000)
-       .style("opacity", "1.0");
-}
 
 /* ORIGINAL_STRUCTURE
  * s -> struttura
@@ -2791,6 +2756,21 @@ function copy_info_gene(s){
     return copy_reg;    
 }
 
+function file_information(){
+	
+	var dp_i = d3.select("#info_gene");
+	dp_i.selectAll("li").remove();
+	dp_i.append("li")
+		.style("font-size", "12px")
+		.text(function() { return "sequence_id: " + original_info.sequence_id; });
+	dp_i.append("li")
+		.style("font-size", "12px")
+	   	.text(function() { return "file_format_version: " + original_info.file_format_version; });
+	dp_i.append("li")
+		.style("font-size", "12px")
+	   	.text(function() { return "program_version: " + original_info.program_version; });
+}
+
 /* INIT
  * 
  * Inizializza tutte le funzione per disegnare la struttura. 
@@ -2799,14 +2779,10 @@ function copy_info_gene(s){
  */
 function init(){
 	
-    
-    //stringa per il pathname del file json
-    var string = "Json_file/";
-    string = string.concat(selection.property("value"), ".json");
-    
+    var path_file = "Json_file/";
     //carica i dati contenuti nel file json e richiama le funzioni per disegnare la struttura
     //dell'isoforma
-    d3.json(string, function(error, atp) {
+    d3.json(path_file.concat(default_structure), function(error, atp) {
 	
 	   console.log(error);
 	   isoform = atp[0];
@@ -2818,9 +2794,14 @@ function init(){
 	   //regioni
 	   x = isoform_range(isoform.regions);
 	   regions = scaling_regions(isoform.regions);
+	   
+	   string_gene = original_info.gene;
 	
-	   display_gene();
-	
+	   navigation_bar();
+	   console.log(original_info);
+	   
+	   file_information();
+	   
 	   //boundaries
 	   boundaries = isoform.boundaries;
 

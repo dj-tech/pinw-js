@@ -287,7 +287,7 @@
 			{
 				"left_boundary" : 0,
 				"right_boundary" : 2,
-				"annotated" : false
+				"annotated" : true
 			},
 
 			{
@@ -305,7 +305,7 @@
 			{
 				"left_boundary" : 3,
 				"right_boundary" : 4,
-				"annotated" : false
+				"annotated" : true
 			},
 
 			{
@@ -323,7 +323,7 @@
 			{
 				"left_boundary" : 8,
 				"right_boundary" : 9,
-				"annotated" : false
+				"annotated" : true
 			},
 
 			{
@@ -335,7 +335,7 @@
 			{
 				"left_boundary" : 11,
 				"right_boundary" : 12,
-				"annotated" : false
+				"annotated" : true
 			},
 
 			{

@@ -31,8 +31,7 @@ Dizionario top-level:
 			
 			NOTE:
 				(1) nella visualizzazione, l'altezza del rettangolo che rappresenta una regione codificante dovrebbe essere
-				proporzionale al valore di "coverage" (per type="spliced"|"unknown" questo valore non ha senso). GLI ESONI
-	!!!!!		SONO COMPOSTI DA REGIONI, QUINDI COME FANNO AD AVERE DIVERSE DIMENSIONI????
+				proporzionale al valore di "coverage" (per type="spliced"|"unknown" questo valore non ha senso).
 
 *********************************************************************************************************************************
 	Boundary -> confine tra due regioni consecutive sulla genomica (chiamate regioni di sinistra e di destra)

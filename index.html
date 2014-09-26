@@ -17,9 +17,7 @@
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="http://d3js.org/d3.v3.js"> charset="utf-8"</script>
 		<script src="http://code.jquery.com/jquery-1.11.1.min.js"> charset="utf-8"</script>
-		<script src="http://code.jquery.com/jquery-1.11.1.js"> charset="utf-8"</script>
-
-		<script src="bootstrap-3.2.0-dist/js/bootstrap.js" charset="utf-8"></script>
+		
 		<script src="bootstrap-3.2.0-dist/js/bootstrap.min.js" charset="utf-8"></script>
 		<script src = "Js/d3-transform/src/d3-transform.js" charset="utf-8"></script>
 		
@@ -28,10 +26,37 @@
 	</head>
 
 	<body>
+		<nav class="navbar navbar-default" role="navigation">
+  			<div class="container-fluid">
+    		<!-- Brand and toggle get grouped for better mobile display -->
+    			<div class="navbar-header">
+      				<a id="home_gene" class="navbar-brand" href="#"></a>
+    			</div>
+    		<!-- Collect the nav links, forms, and other content for toggling -->
+    		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      			<ul class="nav navbar-nav">
+        		<li class="dropdown">
+        		<a href="#" class="dropdown-toggle" data-toggle="dropdown">File structure information</a>
+          			<ul id="info_gene" class="dropdown-menu" role="menu">
+          			</ul>
+        		</li>
+        		<li class="dropdown">
+          			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Select Gene <span class="caret"></span></a>
+          			<ul id="select_gene" class="dropdown-menu" role="menu"></ul>
+        		</li>
+      			</ul> 
+
+      			<button id="zoom_button_on" type="button" class="btn btn-default">Zoom On</button> 
+      			<button id="zoom_button_off" type="button" class="btn btn-default">Zoom Off</button> 
+      			<button id="reset_button" type="button" class="btn btn-default">Reset</button> 
+    		</div>
+  			</div>
+		</nav>
 		
 		<script type = "text/javascript">
-			window.onload = select_gene;
+			window.onload = setup_interface;
 		</script>
+		
 		<div id="myModal" class="modal fade">
  		<div class="modal-dialog">
   		<div class="modal-content">
