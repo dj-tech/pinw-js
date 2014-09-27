@@ -1,3 +1,8 @@
+/* D3 Inteface of structure gene (https://bitbucket.org/Andre_T)
+ * 
+ * Copyright (C) 2014 Andrea Tornaghi
+ * Licensed under GPLv3 (http://www.gnu.org/licenses/gpl.html)
+ */
 
 #isoform {
     background: white;
@@ -5,18 +10,7 @@
     border-radius: 8px;
     
 }
-
-#seq_box {
-    background: white;
-    border: 2px solid rgba(34, 139, 34, 0.7);
-    border-radius: 8px;
-}
         
-#title {
-    background: white;
-    border: 2px solid rgb(66,139,202);
-    border-radius: 8px;
-}
 #expande_box {
     background: white;
     border: 2px solid rgb(66,139,202);
