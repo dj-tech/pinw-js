@@ -514,7 +514,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Conservated region")
+    	.text("Conserved region")
     	.transition()
 	    .delay(d)
 	    .duration(t)
@@ -542,7 +542,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Introns")
+    	.text("Intron")
     	.transition()
 	    .delay(d)
 	    .duration(t)
@@ -666,7 +666,7 @@ function legend_box(){
     	.attr("width", 40)
     	.attr("height", height_exon)
     	.attr("transform", tf_element)
-    	.style("fill", function() { return d3.rgb("#336699"); })
+    	.style("fill", function() { return d3.rgb("#ADD8E6"); })
     	.style("opacity", "0.0")
     	.transition()
 	    .delay(d)
@@ -680,7 +680,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Exon")
+    	.text("Novel exon")
     	.transition()
 	    .delay(d)
 	    .duration(t)
@@ -692,7 +692,7 @@ function legend_box(){
     	.attr("width", 40)
     	.attr("height", height_exon)
     	.attr("transform", tf_element)
-    	.style("fill", function() { return d3.rgb("#336699"); })
+    	.style("fill", function() { return d3.rgb("#ADD8E6"); })
     	.style("stroke", function() { return d3.rgb("#00008B"); })
     	.style("stroke-width", "3px")
     	.style("opacity", "0.0")
@@ -708,7 +708,7 @@ function legend_box(){
     	.style("fill", "black")
     	.style("opacity", "0.0")
     	.attr("transform", tf_text)
-    	.text("Exon annotated")
+    	.text("Annotated exon")
     	.transition()
 	    .delay(d)
 	    .duration(t)
@@ -1219,10 +1219,9 @@ function display_info(s_i, x_iso, elements, r){
 		introns: original_structure(original_regions, 'intron')
 	};
 	
-	console.log(o_s.exons);
 	
     //colori degli elementi
-    var color_exon = function() { return d3.rgb("#336699"); };
+    var color_exon = function() { return d3.rgb("#ADD8E6"); };
     var color_intron = function() { return d3.rgb("black"); };
           
     //variabili per le operazioni di trasformazione 
@@ -1590,7 +1589,7 @@ function display_info_stripe(s_i, x_iso, elements, r){
     var column_start = 50, column_end = 200;
     
     //colori degli elementi
-    var color_exon = function() { return d3.rgb("#336699"); };
+    var color_exon = function() { return d3.rgb("#ADD8E6"); };
     var color_intron = function() { return d3.rgb("black"); };
     
     var transf = {	
