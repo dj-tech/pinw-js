@@ -36,6 +36,4 @@ La funzione di Zoom non è attiva se si utilizzano i browser Safari e Chrome a c
 d3.behavior.zoom()
 ```
 che non permette lo zoom all'interno di una finestra creata con la classe SVG.
-
-
- 
+L'interfaccia è raggiungibile all'indirizzo: http://www.pen.statistica.unimib.it/~dellavedova/pinw
