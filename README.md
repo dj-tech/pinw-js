@@ -6,7 +6,7 @@ negli organismi multicellulari. In virtù dello splicing alternativo,
 un gene può esprimere una molteplicità di trascritti (e quindi una molteciplità di proteine) 
 combinando in maniera diversa i suoi esoni.
 
-![fig_2.png](https://bitbucket.org/repo/5AzB7M/images/3515384991-fig_2.png)
+![fig_3.png](https://bitbucket.org/repo/5AzB7M/images/2408341880-fig_3.png)
 
 L'interfaccia grafica è stata realizzata utilizzando la [libreria D3], al fine di fornire una visualizzazione della struttura in esoni e introni di un gene dovuta a splicing alternativo. 
 [libreria D3]: http://d3js.org
